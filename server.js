@@ -66,15 +66,25 @@ const OWNER_PASSWORD = process.env.OWNER_PASSWORD || 'owner123';
 
 // Routes
 
-// Supplier Signup
-app.post('/api/supplier/signup', async (req, res) => {
+// Owner creates supplier account
+app.post('/api/owner/create-supplier', authenticateToken, async (req, res) => {
   try {
-    const { email, password, companyName, contactPerson } = req.body;
+    if (req.user.role !== 'owner') {
+      return res.status(403).json({ error: 'Access denied. Only owners can create suppliers.' });
+    }
 
-    // Check if supplier already exists
-    const existingSupplier = await Supplier.findOne({ email });
+    const { username, password, companyName, contactPerson } = req.body;
+
+    // Check total supplier count
+    const supplierCount = await Supplier.countDocuments();
+    if (supplierCount >= 50) {
+      return res.status(400).json({ error: 'Maximum supplier limit (50) reached' });
+    }
+
+    // Check if username already exists
+    const existingSupplier = await Supplier.findOne({ email: username });
     if (existingSupplier) {
-      return res.status(400).json({ error: 'Supplier already exists' });
+      return res.status(400).json({ error: 'Username already exists' });
     }
 
     // Hash password
@@ -82,7 +92,7 @@ app.post('/api/supplier/signup', async (req, res) => {
 
     // Create new supplier
     const supplier = new Supplier({
-      email,
+      email: username,
       password: hashedPassword,
       companyName,
       contactPerson
@@ -90,7 +100,55 @@ app.post('/api/supplier/signup', async (req, res) => {
 
     await supplier.save();
 
-    res.status(201).json({ message: 'Supplier registered successfully' });
+    res.status(201).json({ 
+      message: 'Supplier created successfully',
+      supplier: {
+        username,
+        companyName,
+        contactPerson
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get all suppliers (Owner only)
+app.get('/api/owner/suppliers', authenticateToken, async (req, res) => {
+  try {
+    if (req.user.role !== 'owner') {
+      return res.status(403).json({ error: 'Access denied' });
+    }
+
+    const suppliers = await Supplier.find().select('-password');
+    res.json({
+      suppliers,
+      count: suppliers.length,
+      maxSuppliers: 50
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Delete supplier (Owner only)
+app.delete('/api/owner/suppliers/:id', authenticateToken, async (req, res) => {
+  try {
+    if (req.user.role !== 'owner') {
+      return res.status(403).json({ error: 'Access denied' });
+    }
+
+    // Delete all products from this supplier
+    await Product.deleteMany({ supplierId: req.params.id });
+    
+    // Delete the supplier
+    const supplier = await Supplier.findByIdAndDelete(req.params.id);
+    
+    if (!supplier) {
+      return res.status(404).json({ error: 'Supplier not found' });
+    }
+
+    res.json({ message: 'Supplier and all their products deleted successfully' });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -99,10 +157,10 @@ app.post('/api/supplier/signup', async (req, res) => {
 // Supplier Login
 app.post('/api/supplier/login', async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { username, password } = req.body;
 
-    // Find supplier
-    const supplier = await Supplier.findOne({ email });
+    // Find supplier by username (stored as email field)
+    const supplier = await Supplier.findOne({ email: username });
     if (!supplier) {
       return res.status(400).json({ error: 'Invalid credentials' });
     }
@@ -124,7 +182,7 @@ app.post('/api/supplier/login', async (req, res) => {
       token,
       supplier: {
         id: supplier._id,
-        email: supplier.email,
+        username: supplier.email,
         companyName: supplier.companyName,
         contactPerson: supplier.contactPerson
       }
