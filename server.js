@@ -11,7 +11,7 @@ app.use(cors());
 app.use(express.static('public'));
 
 // MongoDB connection
-const MONGODB_URI = process.env.MONGODB_URL ;
+const MONGODB_URI = process.env.MONGODB_URI ;
 mongoose.connect(MONGODB_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true
@@ -51,7 +51,7 @@ const Admin = mongoose.model('Admin', adminSchema);
 const Product = mongoose.model('Product', productSchema);
 
 // JWT Secret
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
+const JWT_SECRET = process.env.JWT_SECRET;
 
 // Middleware to verify JWT
 const authenticateToken = (req, res, next) => {
