@@ -446,12 +446,7 @@
         }
 
         .product-count-display {
-            background: linear-gradient(135deg, #121426 0%, #1a1d35 100%);
-            padding: 18px;
-            border-radius: 10px;
-            margin-bottom: 25px;
-            text-align: center;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            display: none;
         }
 
         .product-count-display span {
@@ -559,7 +554,7 @@
         <div id="authContainer" class="auth-container">
             <div class="tabs">
                 <button class="tab active" onclick="switchTab('supplier-login')">Supplier Login</button>
-                <button class="tab" onclick="switchTab('owner-login')">Owner Login</button>
+                <button class="tab" onclick="switchTab('admin-login')">Admin Login</button>
             </div>
 
             <div id="message" class="message"></div>
@@ -579,21 +574,21 @@
                     <button type="submit">Login</button>
                 </form>
                 <div class="auth-footer">
-                    Contact the owner to get your login credentials
+                    Contact the admin to get your login credentials
                 </div>
             </div>
 
-            <!-- Owner Login -->
-            <div id="owner-login" class="tab-content">
-                <h2>Owner Login</h2>
-                <form onsubmit="handleOwnerLogin(event)">
+            <!-- Admin Login -->
+            <div id="admin-login" class="tab-content">
+                <h2>Admin Login</h2>
+                <form onsubmit="handleAdminLogin(event)">
                     <div class="form-group">
-                        <label>Email</label>
-                        <input type="email" id="owner-login-email" required value="owner@example.com">
+                        <label>Username</label>
+                        <input type="text" id="admin-login-username" required>
                     </div>
                     <div class="form-group">
                         <label>Password</label>
-                        <input type="password" id="owner-login-password" required value="owner123">
+                        <input type="password" id="admin-login-password" required>
                     </div>
                     <button type="submit">Login</button>
                 </form>
@@ -613,9 +608,9 @@
             <div id="dashboardMessage" class="message"></div>
 
             <!-- Product Count Display -->
-            <!-- <div class="product-count-display">
+            <div class="product-count-display">
                 <span>Products: <span class="product-count-number" id="productCount">0</span>/50</span>
-            </div> -->
+            </div>
 
             <!-- Add Product Form -->
             <div class="add-product-section">
@@ -650,23 +645,23 @@
             <div id="supplierProducts" class="product-table-container"></div>
         </div>
 
-        <!-- Owner Dashboard -->
-        <div id="ownerDashboard" class="dashboard">
+        <!-- Admin Dashboard -->
+        <div id="adminDashboard" class="dashboard">
             <div class="header">
                 <div>
-                    <h1>Owner Dashboard</h1>
+                    <h1>Admin Dashboard</h1>
                     <div class="user-info">View All Suppliers & Inventory</div>
                 </div>
                 <button class="logout-btn" onclick="logout()">Logout</button>
             </div>
 
-            <div id="ownerDashboardMessage" class="message"></div>
+            <div id="adminDashboardMessage" class="message"></div>
 
             <a href="manage-suppliers.html" class="manage-suppliers-btn">+ Manage Supplier Accounts</a>
 
             <!-- Products by Supplier with Dropdown -->
             <h2 class="section-title">Supplier Inventory (<span id="totalSuppliersCount">0</span> Suppliers)</h2>
-            <div id="ownerProducts"></div>
+            <div id="adminProducts"></div>
         </div>
     </div>
 
@@ -674,7 +669,7 @@
     <div id="editModal" class="modal">
         <div class="modal-content">
             <h2>Edit Product</h2>
-            <form id="editProductForm" onsubmit="handleOwnerEditProduct(event)">
+            <form id="editProductForm" onsubmit="handleAdminEditProduct(event)">
                 <div class="form-group">
                     <label>SKU</label>
                     <input type="text" id="edit-product-sku" required>
@@ -767,16 +762,16 @@
             }
         }
 
-        async function handleOwnerLogin(event) {
+        async function handleAdminLogin(event) {
             event.preventDefault();
             
             const data = {
-                email: document.getElementById('owner-login-email').value,
-                password: document.getElementById('owner-login-password').value
+                username: document.getElementById('admin-login-username').value,
+                password: document.getElementById('admin-login-password').value
             };
 
             try {
-                const response = await fetch(`${API_URL}/api/owner/login`, {
+                const response = await fetch(`${API_URL}/api/admin/login`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(data)
@@ -786,8 +781,8 @@
 
                 if (response.ok) {
                     token = result.token;
-                    userRole = 'owner';
-                    userData = result.owner;
+                    userRole = 'admin';
+                    userData = result.admin;
                     
                     localStorage.setItem('token', token);
                     localStorage.setItem('userRole', userRole);
@@ -810,9 +805,9 @@
                 document.getElementById('supplierInfo').textContent = 
                     `${userData.companyName} - ${userData.contactPerson}`;
                 loadSupplierProducts();
-            } else if (userRole === 'owner') {
-                document.getElementById('ownerDashboard').style.display = 'block';
-                loadOwnerProducts();
+            } else if (userRole === 'admin') {
+                document.getElementById('adminDashboard').style.display = 'block';
+                loadAdminProducts();
             }
         }
 
@@ -985,9 +980,9 @@
             }
         }
 
-        async function loadOwnerProducts() {
+        async function loadAdminProducts() {
             try {
-                const response = await fetch(`${API_URL}/api/owner/products`, {
+                const response = await fetch(`${API_URL}/api/admin/products`, {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
@@ -997,7 +992,7 @@
 
                 document.getElementById('totalSuppliersCount').textContent = supplierGroups.length;
 
-                const container = document.getElementById('ownerProducts');
+                const container = document.getElementById('adminProducts');
                 
                 if (supplierGroups.length === 0) {
                     container.innerHTML = '<div class="empty-state">No suppliers or products yet. Create supplier accounts first.</div>';
@@ -1010,7 +1005,7 @@
                             <div class="supplier-info">
                                 <div class="supplier-name">${group.supplier.companyName}</div>
                                 <div class="supplier-details">
-                                    Contact: ${group.supplier.contactPerson} | Username: ${group.supplier.email}
+                                    Contact: ${group.supplier.contactPerson} | Username: ${group.supplier.username || group.supplier.email}
                                 </div>
                             </div>
                             <div style="display: flex; align-items: center;">
@@ -1041,8 +1036,8 @@
                                                 <td>${new Date(product.lastUpdated).toLocaleString()}</td>
                                                 <td>
                                                     <div class="table-actions">
-                                                        <button class="btn-small btn-edit" onclick="openOwnerEditModal('${product._id}', '${product.sku}', '${product.name.replace(/'/g, "\\'")}', ${product.price}, '${product.unit}')">Edit</button>
-                                                        <button class="btn-small btn-delete" onclick="ownerDeleteProduct('${product._id}')">Delete</button>
+                                                        <button class="btn-small btn-edit" onclick="openAdminEditModal('${product._id}', '${product.sku}', '${product.name.replace(/'/g, "\\'")}', ${product.price}, '${product.unit}')">Edit</button>
+                                                        <button class="btn-small btn-delete" onclick="adminDeleteProduct('${product._id}')">Delete</button>
                                                     </div>
                                                 </td>
                                             </tr>
@@ -1058,7 +1053,7 @@
             }
         }
 
-        function openOwnerEditModal(id, sku, name, price, unit) {
+        function openAdminEditModal(id, sku, name, price, unit) {
             currentEditProductId = id;
             document.getElementById('edit-product-sku').value = sku;
             document.getElementById('edit-product-name').value = name;
@@ -1073,7 +1068,7 @@
             currentEditProductId = null;
         }
 
-        async function handleOwnerEditProduct(event) {
+        async function handleAdminEditProduct(event) {
             event.preventDefault();
             
             const data = {
@@ -1084,7 +1079,7 @@
             };
 
             try {
-                const response = await fetch(`${API_URL}/api/owner/products/${currentEditProductId}`, {
+                const response = await fetch(`${API_URL}/api/admin/products/${currentEditProductId}`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
@@ -1096,22 +1091,22 @@
                 const result = await response.json();
 
                 if (response.ok) {
-                    showMessage('Product updated successfully!', 'success', 'ownerDashboardMessage');
+                    showMessage('Product updated successfully!', 'success', 'adminDashboardMessage');
                     closeEditModal();
-                    loadOwnerProducts();
+                    loadAdminProducts();
                 } else {
-                    showMessage(result.error || 'Failed to update product', 'error', 'ownerDashboardMessage');
+                    showMessage(result.error || 'Failed to update product', 'error', 'adminDashboardMessage');
                 }
             } catch (error) {
-                showMessage('Network error. Please try again.', 'error', 'ownerDashboardMessage');
+                showMessage('Network error. Please try again.', 'error', 'adminDashboardMessage');
             }
         }
 
-        async function ownerDeleteProduct(productId) {
+        async function adminDeleteProduct(productId) {
             if (!confirm('Are you sure you want to delete this product?')) return;
 
             try {
-                const response = await fetch(`${API_URL}/api/owner/products/${productId}`, {
+                const response = await fetch(`${API_URL}/api/admin/products/${productId}`, {
                     method: 'DELETE',
                     headers: {
                         'Authorization': `Bearer ${token}`
@@ -1121,13 +1116,13 @@
                 const result = await response.json();
 
                 if (response.ok) {
-                    showMessage('Product deleted successfully!', 'success', 'ownerDashboardMessage');
-                    loadOwnerProducts();
+                    showMessage('Product deleted successfully!', 'success', 'adminDashboardMessage');
+                    loadAdminProducts();
                 } else {
-                    showMessage(result.error || 'Failed to delete product', 'error', 'ownerDashboardMessage');
+                    showMessage(result.error || 'Failed to delete product', 'error', 'adminDashboardMessage');
                 }
             } catch (error) {
-                showMessage('Network error. Please try again.', 'error', 'ownerDashboardMessage');
+                showMessage('Network error. Please try again.', 'error', 'adminDashboardMessage');
             }
         }
 
@@ -1149,7 +1144,7 @@
             userData = {};
             
             document.getElementById('supplierDashboard').style.display = 'none';
-            document.getElementById('ownerDashboard').style.display = 'none';
+            document.getElementById('adminDashboard').style.display = 'none';
             document.getElementById('authContainer').style.display = 'block';
             
             document.querySelectorAll('.tab').forEach((tab, index) => {
