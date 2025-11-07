@@ -13,10 +13,11 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #121426 0%, #1a1d35 100%);
             min-height: 100vh;
-            padding: 15px;
+            padding: 20px;
             font-size: 14px;
+            color: #FFFFFF;
         }
 
         .container {
@@ -25,56 +26,64 @@
         }
 
         .auth-container {
-            max-width: 420px;
-            margin: 30px auto;
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+            max-width: 480px;
+            margin: 50px auto;
+            background: #FFFFFF;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
         }
 
         .dashboard {
             display: none;
-            background: white;
-            padding: 25px;
-            border-radius: 10px;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.15);
-            margin-top: 15px;
+            background: #FFFFFF;
+            padding: 30px;
+            border-radius: 12px;
+            margin-top: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
         }
 
         h1 {
-            color: #333;
-            margin-bottom: 8px;
-            font-size: 24px;
+            color: #121426;
+            margin-bottom: 10px;
+            font-size: 28px;
         }
 
         h2 {
-            color: #333;
-            margin-bottom: 18px;
-            font-size: 20px;
+            color: #121426;
+            margin-bottom: 20px;
+            font-size: 22px;
         }
 
         .tabs {
             display: flex;
-            gap: 8px;
-            margin-bottom: 25px;
-            border-bottom: 2px solid #e0e0e0;
+            gap: 0;
+            margin-bottom: 30px;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 2px solid #C9B37E;
         }
 
         .tab {
-            padding: 10px 18px;
-            background: none;
+            flex: 1;
+            padding: 14px 20px;
+            background: #FFFFFF;
             border: none;
             cursor: pointer;
             font-size: 14px;
-            color: #666;
-            border-bottom: 3px solid transparent;
+            color: #121426;
             transition: all 0.3s;
+            font-weight: 500;
         }
 
         .tab.active {
-            color: #667eea;
-            border-bottom-color: #667eea;
+            background: #C9B37E;
+            color: #121426;
+            font-weight: 700;
+        }
+
+        .tab:hover:not(.active) {
+            background: #f5f5f5;
         }
 
         .tab-content {
@@ -86,256 +95,187 @@
         }
 
         .form-group {
-            margin-bottom: 16px;
+            margin-bottom: 20px;
         }
 
         label {
             display: block;
-            margin-bottom: 6px;
-            color: #555;
-            font-weight: 500;
-            font-size: 13px;
-        }
-
-        input, select {
-            width: 100%;
-            padding: 10px 12px;
-            border: 1.5px solid #e0e0e0;
-            border-radius: 6px;
+            margin-bottom: 8px;
+            color: #121426;
+            font-weight: 600;
             font-size: 14px;
-            transition: border-color 0.3s;
         }
 
-        input:focus, select:focus {
+        input {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            background: #FFFFFF;
+            color: #121426;
+            transition: all 0.3s;
+        }
+
+        input:focus {
             outline: none;
-            border-color: #667eea;
+            border-color: #C9B37E;
+            box-shadow: 0 0 0 4px rgba(201, 179, 126, 0.1);
         }
 
         button {
             width: 100%;
-            padding: 11px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            padding: 14px;
+            background: #C9B37E;
+            color: #121426;
             border: none;
-            border-radius: 6px;
-            font-size: 14px;
-            font-weight: 600;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 700;
             cursor: pointer;
-            transition: transform 0.2s;
+            transition: all 0.3s;
         }
 
         button:hover {
+            background: #d4c390;
             transform: translateY(-2px);
-        }
-
-        button:active {
-            transform: translateY(0);
+            box-shadow: 0 6px 20px rgba(201, 179, 126, 0.3);
         }
 
         .btn-secondary {
-            background: #6c757d;
-            margin-top: 8px;
+            background: #121426;
+            color: #FFFFFF;
+        }
+
+        .btn-secondary:hover {
+            background: #1f2138;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(18, 20, 38, 0.3);
         }
 
         .btn-small {
             width: auto;
-            padding: 6px 14px;
+            padding: 8px 16px;
             font-size: 13px;
             margin: 4px;
         }
 
-        .btn-danger {
-            background: #dc3545;
+        .btn-edit {
+            background: #C9B37E;
+            color: #121426;
+            border: 2px solid #C9B37E;
         }
 
-        .btn-success {
-            background: #28a745;
+        .btn-edit:hover {
+            background: #d4c390;
+            border-color: #d4c390;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(201, 179, 126, 0.3);
+        }
+
+        .btn-delete {
+            background: #FFFFFF;
+            color: #121426;
+            border: 2px solid #121426;
+        }
+
+        .btn-delete:hover {
+            background: #121426;
+            color: #FFFFFF;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(18, 20, 38, 0.3);
         }
 
         .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 25px;
-            padding-bottom: 15px;
-            border-bottom: 2px solid #f0f0f0;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: linear-gradient(135deg, #121426 0%, #1a1d35 100%);
+            border-radius: 10px;
+        }
+
+        .header h1 {
+            color: #FFFFFF;
         }
 
         .user-info {
-            color: #666;
+            color: #C9B37E;
             font-size: 13px;
-            margin-top: 4px;
-        }
-
-        .product-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 16px;
-            margin-top: 20px;
-        }
-
-        .product-card {
-            border: 1.5px solid #e0e0e0;
-            border-radius: 8px;
-            padding: 16px;
-            transition: all 0.3s;
-            background: #fafafa;
-        }
-
-        .product-card:hover {
-            border-color: #667eea;
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
-            background: white;
-        }
-
-        .product-card h3 {
-            color: #333;
-            margin-bottom: 10px;
-            font-size: 16px;
-        }
-
-        .product-info {
-            margin: 6px 0;
-            color: #666;
-            font-size: 13px;
-        }
-
-        .product-info strong {
-            color: #333;
-        }
-
-        .supplier-section {
-            margin-bottom: 30px;
-            border: 2px solid #667eea;
-            border-radius: 8px;
-            padding: 18px;
-            background: #f8f9ff;
-        }
-
-        .supplier-header {
-            background: #667eea;
-            color: white;
-            padding: 12px 16px;
-            border-radius: 6px;
-            margin-bottom: 16px;
-        }
-
-        .supplier-header h2 {
-            margin: 0;
-            font-size: 18px;
-            color: white;
-        }
-
-        .supplier-header-info {
-            margin-top: 4px;
-            opacity: 0.9;
-            font-size: 13px;
-        }
-
-        .message {
-            padding: 10px 12px;
-            margin-bottom: 16px;
-            border-radius: 6px;
-            display: none;
-            font-size: 13px;
-        }
-
-        .message.success {
-            background: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-
-        .message.error {
-            background: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-
-        .message.show {
-            display: block;
-        }
-
-        .switch-auth {
-            text-align: center;
-            margin-top: 16px;
-            color: #666;
-            font-size: 13px;
-        }
-
-        .switch-auth a {
-            color: #667eea;
-            text-decoration: none;
-            font-weight: 600;
-        }
-
-        .switch-auth a:hover {
-            text-decoration: underline;
+            margin-top: 5px;
         }
 
         .logout-btn {
-            background: #dc3545;
+            background: transparent;
+            border: 2px solid #C9B37E;
+            color: #C9B37E;
             width: auto;
-            padding: 8px 18px;
-            font-size: 13px;
+            padding: 10px 24px;
+            font-size: 14px;
+        }
+
+        .logout-btn:hover {
+            background: #C9B37E;
+            color: #121426;
         }
 
         .form-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 14px;
+            gap: 15px;
         }
 
         .add-product-section {
             background: #f8f9fa;
-            padding: 18px;
-            border-radius: 8px;
-            margin-bottom: 25px;
-            border: 1px solid #e9ecef;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            border-left: 4px solid #C9B37E;
         }
 
         .add-product-section h2 {
-            font-size: 18px;
-            margin-bottom: 16px;
+            font-size: 20px;
+            margin-bottom: 20px;
+            color: #121426;
         }
 
         .section-title {
-            font-size: 18px;
-            color: #333;
-            margin-bottom: 16px;
-            padding-bottom: 8px;
-            border-bottom: 2px solid #e0e0e0;
+            font-size: 20px;
+            color: #121426;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #C9B37E;
+            font-weight: 700;
         }
 
         .empty-state {
             text-align: center;
-            color: #999;
-            padding: 30px;
-            font-size: 14px;
+            color: #888;
+            padding: 50px;
+            font-size: 15px;
         }
 
-        /* Table Styles */
         .product-table-container {
             overflow-x: auto;
             margin-top: 20px;
-        }
-
-        .product-table {
-            width: 100%;
-            border-collapse: collapse;
-            background: white;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-            border-radius: 8px;
+            border-radius: 10px;
             overflow: hidden;
         }
 
-        .product-table thead {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #FFFFFF;
         }
 
-        .product-table th {
-            padding: 12px 16px;
+        table thead {
+            background: #121426;
+            color: #FFFFFF;
+        }
+
+        table th {
+            padding: 16px;
             text-align: left;
             font-weight: 600;
             font-size: 13px;
@@ -343,22 +283,22 @@
             letter-spacing: 0.5px;
         }
 
-        .product-table td {
-            padding: 12px 16px;
-            border-bottom: 1px solid #f0f0f0;
+        table td {
+            padding: 16px;
+            border-bottom: 1px solid #e8e8e8;
             font-size: 14px;
-            color: #333;
+            color: #121426;
         }
 
-        .product-table tbody tr {
-            transition: background-color 0.2s;
+        table tbody tr {
+            transition: all 0.2s;
         }
 
-        .product-table tbody tr:hover {
-            background-color: #f8f9ff;
+        table tbody tr:hover {
+            background-color: rgba(201, 179, 126, 0.08);
         }
 
-        .product-table tbody tr:last-child td {
+        table tbody tr:last-child td {
             border-bottom: none;
         }
 
@@ -367,18 +307,221 @@
             gap: 8px;
         }
 
-        .table-actions button {
-            width: auto;
-            padding: 6px 12px;
-            font-size: 12px;
+        .message {
+            padding: 14px 18px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            display: none;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            border-left: 4px solid #28a745;
+        }
+
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border-left: 4px solid #dc3545;
+        }
+
+        .message.show {
+            display: block;
+        }
+
+        .supplier-accordion {
+            margin-bottom: 20px;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .supplier-accordion-header {
+            background: linear-gradient(135deg, #121426 0%, #1a1d35 100%);
+            padding: 20px 25px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s;
+            user-select: none;
+        }
+
+        .supplier-accordion-header:hover {
+            background: linear-gradient(135deg, #1a1d35 0%, #242745 100%);
+        }
+
+        .supplier-accordion-header.active {
+            background: #C9B37E;
+        }
+
+        .supplier-info {
+            flex: 1;
+        }
+
+        .supplier-name {
+            font-size: 19px;
+            font-weight: 700;
+            margin-bottom: 5px;
+            color: #FFFFFF;
+        }
+
+        .supplier-accordion-header.active .supplier-name {
+            color: #121426;
+        }
+
+        .supplier-details {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .supplier-accordion-header.active .supplier-details {
+            color: #121426;
+            opacity: 0.8;
+        }
+
+        .accordion-arrow {
+            font-size: 24px;
+            transition: transform 0.3s;
+            color: #C9B37E;
+        }
+
+        .supplier-accordion-header.active .accordion-arrow {
+            transform: rotate(180deg);
+            color: #121426;
+        }
+
+        .supplier-accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease-out;
+            background: #FFFFFF;
+        }
+
+        .supplier-accordion-content.active {
+            max-height: 3000px;
+            transition: max-height 0.6s ease-in;
+        }
+
+        .supplier-accordion-body {
+            padding: 25px;
+        }
+
+        .product-count-badge {
+            background: #C9B37E;
+            color: #121426;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 700;
+            margin-right: 15px;
+        }
+
+        .supplier-accordion-header.active .product-count-badge {
+            background: #121426;
+            color: #C9B37E;
+        }
+
+        .manage-suppliers-btn {
+            background: #C9B37E;
+            color: #121426;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 15px;
+            display: inline-block;
+            margin-bottom: 25px;
+            transition: all 0.3s;
+        }
+
+        .manage-suppliers-btn:hover {
+            background: #d4c390;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(201, 179, 126, 0.3);
+        }
+
+        .product-count-display {
+            background: linear-gradient(135deg, #121426 0%, #1a1d35 100%);
+            padding: 18px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .product-count-display span {
+            color: #FFFFFF;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .product-count-number {
+            color: #C9B37E !important;
+            font-size: 24px !important;
+            font-weight: 700 !important;
+        }
+
+        .auth-footer {
+            margin-top: 20px;
+            text-align: center;
+            color: #666;
+            font-size: 13px;
+        }
+
+        /* Edit Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+        }
+
+        .modal.show {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: #FFFFFF;
+            padding: 30px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 10px 50px rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content h2 {
+            margin-bottom: 25px;
+            border-bottom: 3px solid #C9B37E;
+            padding-bottom: 10px;
+        }
+
+        .modal-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .modal-actions button {
+            width: 100%;
+            padding: 14px;
+            margin: 0;
+            height: auto;
         }
 
         @media (max-width: 768px) {
             .form-row {
-                grid-template-columns: 1fr;
-            }
-
-            .product-grid {
                 grid-template-columns: 1fr;
             }
 
@@ -387,27 +530,32 @@
             }
 
             .auth-container {
-                padding: 20px;
-                margin: 20px auto;
+                padding: 30px 25px;
+                margin: 30px auto;
             }
 
             .dashboard {
-                padding: 18px;
+                padding: 20px;
             }
 
             h1 {
-                font-size: 20px;
+                font-size: 24px;
             }
 
             h2 {
-                font-size: 18px;
+                font-size: 20px;
+            }
+
+            .header {
+                flex-direction: column;
+                gap: 15px;
             }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- Login/Signup Container -->
+        <!-- Login Container -->
         <div id="authContainer" class="auth-container">
             <div class="tabs">
                 <button class="tab active" onclick="switchTab('supplier-login')">Supplier Login</button>
@@ -430,9 +578,9 @@
                     </div>
                     <button type="submit">Login</button>
                 </form>
-                <p style="margin-top: 12px; color: #666; font-size: 12px;">
+                <div class="auth-footer">
                     Contact the owner to get your login credentials
-                </p>
+                </div>
             </div>
 
             <!-- Owner Login -->
@@ -449,9 +597,6 @@
                     </div>
                     <button type="submit">Login</button>
                 </form>
-                <p style="margin-top: 12px; color: #666; font-size: 12px;">
-                    Default credentials: owner@example.com / owner123
-                </p>
             </div>
         </div>
 
@@ -466,6 +611,11 @@
             </div>
 
             <div id="dashboardMessage" class="message"></div>
+
+            <!-- Product Count Display -->
+            <div class="product-count-display">
+                <span>Products: <span class="product-count-number" id="productCount">0</span>/50</span>
+            </div>
 
             <!-- Add Product Form -->
             <div class="add-product-section">
@@ -505,48 +655,47 @@
             <div class="header">
                 <div>
                     <h1>Owner Dashboard</h1>
-                    <div class="user-info">Manage Suppliers & View Products</div>
+                    <div class="user-info">View All Suppliers & Inventory</div>
                 </div>
                 <button class="logout-btn" onclick="logout()">Logout</button>
             </div>
 
-            <div id="ownerMessage" class="message"></div>
+            <div id="ownerDashboardMessage" class="message"></div>
 
-            <!-- Supplier Management Section -->
-            <div class="add-product-section">
-                <h2>Create New Supplier Account (<span id="supplierCount">0</span>/50)</h2>
-                <form onsubmit="handleCreateSupplier(event)">
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Username</label>
-                            <input type="text" id="new-supplier-username" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Password</label>
-                            <input type="text" id="new-supplier-password" required>
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Company Name</label>
-                            <input type="text" id="new-supplier-company" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Contact Person</label>
-                            <input type="text" id="new-supplier-contact" required>
-                        </div>
-                    </div>
-                    <button type="submit">Create Supplier Account</button>
-                </form>
-            </div>
+            <a href="manage-suppliers.html" class="manage-suppliers-btn">+ Manage Supplier Accounts</a>
 
-            <!-- Suppliers List -->
-            <h2 class="section-title">Supplier Accounts (<span id="supplierListCount">0</span>/50)</h2>
-            <div id="ownerSuppliers" class="product-table-container"></div>
-
-            <!-- Products by Supplier -->
-            <h2 class="section-title" style="margin-top: 30px;">All Products by Supplier</h2>
+            <!-- Products by Supplier with Dropdown -->
+            <h2 class="section-title">Supplier Inventory (<span id="totalSuppliersCount">0</span> Suppliers)</h2>
             <div id="ownerProducts"></div>
+        </div>
+    </div>
+
+    <!-- Edit Product Modal -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <h2>Edit Product</h2>
+            <form id="editProductForm" onsubmit="handleOwnerEditProduct(event)">
+                <div class="form-group">
+                    <label>SKU</label>
+                    <input type="text" id="edit-product-sku" required>
+                </div>
+                <div class="form-group">
+                    <label>Product Name</label>
+                    <input type="text" id="edit-product-name" required>
+                </div>
+                <div class="form-group">
+                    <label>Price</label>
+                    <input type="number" step="0.01" id="edit-product-price" required>
+                </div>
+                <div class="form-group">
+                    <label>Unit</label>
+                    <input type="text" id="edit-product-unit" required>
+                </div>
+                <div class="modal-actions">
+                    <button type="submit" class="btn-edit">Update Product</button>
+                    <button type="button" class="btn-secondary" onclick="closeEditModal()">Cancel</button>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -555,8 +704,8 @@
         let token = localStorage.getItem('token');
         let userRole = localStorage.getItem('userRole');
         let userData = JSON.parse(localStorage.getItem('userData') || '{}');
+        let currentEditProductId = null;
 
-        // Check if user is already logged in
         if (token && userRole) {
             showDashboard();
         }
@@ -663,7 +812,6 @@
                 loadSupplierProducts();
             } else if (userRole === 'owner') {
                 document.getElementById('ownerDashboard').style.display = 'block';
-                loadOwnerSuppliers();
                 loadOwnerProducts();
             }
         }
@@ -684,7 +832,6 @@
             try {
                 let response;
                 if (isEditing) {
-                    // Update existing product
                     response = await fetch(`${API_URL}/api/products/${isEditing}`, {
                         method: 'PUT',
                         headers: {
@@ -694,7 +841,6 @@
                         body: JSON.stringify(data)
                     });
                 } else {
-                    // Add new product
                     response = await fetch(`${API_URL}/api/products`, {
                         method: 'POST',
                         headers: {
@@ -720,26 +866,21 @@
         }
 
         function editProduct(id, sku, name, price, unit) {
-            // Scroll to form
             window.scrollTo({ top: 0, behavior: 'smooth' });
             
-            // Fill the form with existing data
             document.getElementById('product-sku').value = sku;
             document.getElementById('product-name').value = name;
             document.getElementById('product-price').value = price;
             document.getElementById('product-unit').value = unit;
             
-            // Change the form title and button
             document.querySelector('.add-product-section h2').textContent = 'Edit Product';
             const form = document.querySelector('.add-product-section form');
             const submitButton = form.querySelector('button[type="submit"]');
             submitButton.textContent = 'Update Product';
-            submitButton.style.background = '#28a745';
+            submitButton.style.background = '#C9B37E';
             
-            // Store the product ID for update
             form.dataset.editId = id;
             
-            // Add a cancel button if it doesn't exist
             if (!document.getElementById('cancel-edit-btn')) {
                 const cancelBtn = document.createElement('button');
                 cancelBtn.id = 'cancel-edit-btn';
@@ -775,6 +916,8 @@
 
                 const products = await response.json();
 
+                document.getElementById('productCount').textContent = products.length;
+
                 const container = document.getElementById('supplierProducts');
                 
                 if (products.length === 0) {
@@ -783,7 +926,7 @@
                 }
 
                 container.innerHTML = `
-                    <table class="product-table">
+                    <table>
                         <thead>
                             <tr>
                                 <th>SKU</th>
@@ -804,8 +947,8 @@
                                     <td>${new Date(product.lastUpdated).toLocaleString()}</td>
                                     <td>
                                         <div class="table-actions">
-                                            <button class="btn-small btn-success" onclick="editProduct('${product._id}', '${product.sku}', '${product.name}', ${product.price}, '${product.unit}')">Edit</button>
-                                            <button class="btn-small btn-danger" onclick="deleteProduct('${product._id}')">Delete</button>
+                                            <button class="btn-small btn-edit" onclick="editProduct('${product._id}', '${product.sku}', '${product.name.replace(/'/g, "\\'")}', ${product.price}, '${product.unit}')">Edit</button>
+                                            <button class="btn-small btn-delete" onclick="deleteProduct('${product._id}')">Delete</button>
                                         </div>
                                     </td>
                                 </tr>
@@ -852,44 +995,61 @@
 
                 const supplierGroups = await response.json();
 
+                document.getElementById('totalSuppliersCount').textContent = supplierGroups.length;
+
                 const container = document.getElementById('ownerProducts');
                 
                 if (supplierGroups.length === 0) {
-                    container.innerHTML = '<div class="empty-state">No products from any suppliers yet.</div>';
+                    container.innerHTML = '<div class="empty-state">No suppliers or products yet. Create supplier accounts first.</div>';
                     return;
                 }
 
-                container.innerHTML = supplierGroups.map(group => `
-                    <div class="supplier-section">
-                        <div class="supplier-header">
-                            <h2>${group.supplier.companyName}</h2>
-                            <div class="supplier-header-info">
-                                Contact: ${group.supplier.contactPerson} | Username: ${group.supplier.email}
+                container.innerHTML = supplierGroups.map((group, index) => `
+                    <div class="supplier-accordion">
+                        <div class="supplier-accordion-header" onclick="toggleAccordion(${index})">
+                            <div class="supplier-info">
+                                <div class="supplier-name">${group.supplier.companyName}</div>
+                                <div class="supplier-details">
+                                    Contact: ${group.supplier.contactPerson} | Username: ${group.supplier.email}
+                                </div>
+                            </div>
+                            <div style="display: flex; align-items: center;">
+                                <span class="product-count-badge">${group.products.length} Products</span>
+                                <span class="accordion-arrow">▼</span>
                             </div>
                         </div>
-                        <div class="product-table-container">
-                            <table class="product-table">
-                                <thead>
-                                    <tr>
-                                        <th>SKU</th>
-                                        <th>Product Name</th>
-                                        <th>Price</th>
-                                        <th>Unit</th>
-                                        <th>Last Updated</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    ${group.products.map(product => `
+                        <div class="supplier-accordion-content" id="accordion-${index}">
+                            <div class="supplier-accordion-body">
+                                <table>
+                                    <thead>
                                         <tr>
-                                            <td><strong>${product.sku}</strong></td>
-                                            <td>${product.name}</td>
-                                            <td>$${product.price.toFixed(2)}</td>
-                                            <td>${product.unit}</td>
-                                            <td>${new Date(product.lastUpdated).toLocaleString()}</td>
+                                            <th>SKU</th>
+                                            <th>Product Name</th>
+                                            <th>Price</th>
+                                            <th>Unit</th>
+                                            <th>Last Updated</th>
+                                            <th>Actions</th>
                                         </tr>
-                                    `).join('')}
-                                </tbody>
-                            </table>
+                                    </thead>
+                                    <tbody>
+                                        ${group.products.map(product => `
+                                            <tr>
+                                                <td><strong>${product.sku}</strong></td>
+                                                <td>${product.name}</td>
+                                                <td>$${product.price.toFixed(2)}</td>
+                                                <td>${product.unit}</td>
+                                                <td>${new Date(product.lastUpdated).toLocaleString()}</td>
+                                                <td>
+                                                    <div class="table-actions">
+                                                        <button class="btn-small btn-edit" onclick="openOwnerEditModal('${product._id}', '${product.sku}', '${product.name.replace(/'/g, "\\'")}', ${product.price}, '${product.unit}')">Edit</button>
+                                                        <button class="btn-small btn-delete" onclick="ownerDeleteProduct('${product._id}')">Delete</button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        `).join('')}
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
                 `).join('');
@@ -898,19 +1058,34 @@
             }
         }
 
-        async function handleCreateSupplier(event) {
+        function openOwnerEditModal(id, sku, name, price, unit) {
+            currentEditProductId = id;
+            document.getElementById('edit-product-sku').value = sku;
+            document.getElementById('edit-product-name').value = name;
+            document.getElementById('edit-product-price').value = price;
+            document.getElementById('edit-product-unit').value = unit;
+            document.getElementById('editModal').classList.add('show');
+        }
+
+        function closeEditModal() {
+            document.getElementById('editModal').classList.remove('show');
+            document.getElementById('editProductForm').reset();
+            currentEditProductId = null;
+        }
+
+        async function handleOwnerEditProduct(event) {
             event.preventDefault();
             
             const data = {
-                username: document.getElementById('new-supplier-username').value,
-                password: document.getElementById('new-supplier-password').value,
-                companyName: document.getElementById('new-supplier-company').value,
-                contactPerson: document.getElementById('new-supplier-contact').value
+                sku: document.getElementById('edit-product-sku').value,
+                name: document.getElementById('edit-product-name').value,
+                price: parseFloat(document.getElementById('edit-product-price').value),
+                unit: document.getElementById('edit-product-unit').value
             };
 
             try {
-                const response = await fetch(`${API_URL}/api/owner/create-supplier`, {
-                    method: 'POST',
+                const response = await fetch(`${API_URL}/api/owner/products/${currentEditProductId}`, {
+                    method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${token}`
@@ -921,77 +1096,22 @@
                 const result = await response.json();
 
                 if (response.ok) {
-                    showMessage('Supplier account created successfully!', 'success', 'ownerMessage');
-                    event.target.reset();
-                    loadOwnerSuppliers();
+                    showMessage('Product updated successfully!', 'success', 'ownerDashboardMessage');
+                    closeEditModal();
+                    loadOwnerProducts();
                 } else {
-                    showMessage(result.error || 'Failed to create supplier', 'error', 'ownerMessage');
+                    showMessage(result.error || 'Failed to update product', 'error', 'ownerDashboardMessage');
                 }
             } catch (error) {
-                showMessage('Network error. Please try again.', 'error', 'ownerMessage');
+                showMessage('Network error. Please try again.', 'error', 'ownerDashboardMessage');
             }
         }
 
-        async function loadOwnerSuppliers() {
-            try {
-                const response = await fetch(`${API_URL}/api/owner/suppliers`, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-
-                const result = await response.json();
-                const suppliers = result.suppliers;
-
-                // Update counts
-                document.getElementById('supplierCount').textContent = result.count;
-                document.getElementById('supplierListCount').textContent = result.count;
-
-                const container = document.getElementById('ownerSuppliers');
-                
-                if (suppliers.length === 0) {
-                    container.innerHTML = '<div class="empty-state">No suppliers created yet. Create your first supplier above!</div>';
-                    return;
-                }
-
-                container.innerHTML = `
-                    <table class="product-table">
-                        <thead>
-                            <tr>
-                                <th>Username</th>
-                                <th>Company Name</th>
-                                <th>Contact Person</th>
-                                <th>Created Date</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${suppliers.map(supplier => `
-                                <tr>
-                                    <td><strong>${supplier.email}</strong></td>
-                                    <td>${supplier.companyName}</td>
-                                    <td>${supplier.contactPerson}</td>
-                                    <td>${new Date(supplier.createdAt).toLocaleDateString()}</td>
-                                    <td>
-                                        <div class="table-actions">
-                                            <button class="btn-small btn-danger" onclick="deleteSupplier('${supplier._id}', '${supplier.companyName}')">Delete</button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            `).join('')}
-                        </tbody>
-                    </table>
-                `;
-            } catch (error) {
-                showMessage('Failed to load suppliers', 'error', 'ownerMessage');
-            }
-        }
-
-        async function deleteSupplier(supplierId, companyName) {
-            if (!confirm(`Are you sure you want to delete ${companyName}? This will also delete all their products.`)) return;
+        async function ownerDeleteProduct(productId) {
+            if (!confirm('Are you sure you want to delete this product?')) return;
 
             try {
-                const response = await fetch(`${API_URL}/api/owner/suppliers/${supplierId}`, {
+                const response = await fetch(`${API_URL}/api/owner/products/${productId}`, {
                     method: 'DELETE',
                     headers: {
                         'Authorization': `Bearer ${token}`
@@ -1001,15 +1121,22 @@
                 const result = await response.json();
 
                 if (response.ok) {
-                    showMessage('Supplier and their products deleted successfully!', 'success', 'ownerMessage');
-                    loadOwnerSuppliers();
+                    showMessage('Product deleted successfully!', 'success', 'ownerDashboardMessage');
                     loadOwnerProducts();
                 } else {
-                    showMessage(result.error || 'Failed to delete supplier', 'error', 'ownerMessage');
+                    showMessage(result.error || 'Failed to delete product', 'error', 'ownerDashboardMessage');
                 }
             } catch (error) {
-                showMessage('Network error. Please try again.', 'error', 'ownerMessage');
+                showMessage('Network error. Please try again.', 'error', 'ownerDashboardMessage');
             }
+        }
+
+        function toggleAccordion(index) {
+            const header = document.querySelectorAll('.supplier-accordion-header')[index];
+            const content = document.getElementById(`accordion-${index}`);
+            
+            header.classList.toggle('active');
+            content.classList.toggle('active');
         }
 
         function logout() {
@@ -1025,7 +1152,6 @@
             document.getElementById('ownerDashboard').style.display = 'none';
             document.getElementById('authContainer').style.display = 'block';
             
-            // Reset to supplier login tab
             document.querySelectorAll('.tab').forEach((tab, index) => {
                 tab.classList.toggle('active', index === 0);
             });
@@ -1033,6 +1159,13 @@
                 content.classList.toggle('active', index === 0);
             });
         }
+
+        // Close modal when clicking outside
+        document.getElementById('editModal').addEventListener('click', function(event) {
+            if (event.target === this) {
+                closeEditModal();
+            }
+        });
     </script>
 </body>
 </html>
