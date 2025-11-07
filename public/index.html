@@ -314,6 +314,65 @@
             font-size: 14px;
         }
 
+        /* Table Styles */
+        .product-table-container {
+            overflow-x: auto;
+            margin-top: 20px;
+        }
+
+        .product-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .product-table thead {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .product-table th {
+            padding: 12px 16px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .product-table td {
+            padding: 12px 16px;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 14px;
+            color: #333;
+        }
+
+        .product-table tbody tr {
+            transition: background-color 0.2s;
+        }
+
+        .product-table tbody tr:hover {
+            background-color: #f8f9ff;
+        }
+
+        .product-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .table-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .table-actions button {
+            width: auto;
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+
         @media (max-width: 768px) {
             .form-row {
                 grid-template-columns: 1fr;
@@ -412,9 +471,6 @@
                     </div>
                     <button type="submit">Login</button>
                 </form>
-                <p style="margin-top: 12px; color: #666; font-size: 12px;">
-                    Default credentials: owner@example.com / owner123
-                </p>
             </div>
         </div>
 
@@ -460,7 +516,7 @@
 
             <!-- Products List -->
             <h2 class="section-title">My Products</h2>
-            <div id="supplierProducts" class="product-grid"></div>
+            <div id="supplierProducts" class="product-table-container"></div>
         </div>
 
         <!-- Owner Dashboard -->
@@ -630,6 +686,9 @@
         async function handleAddProduct(event) {
             event.preventDefault();
             
+            const form = event.target;
+            const isEditing = form.dataset.editId;
+            
             const data = {
                 sku: document.getElementById('product-sku').value,
                 name: document.getElementById('product-name').value,
@@ -638,27 +697,87 @@
             };
 
             try {
-                const response = await fetch(`${API_URL}/api/products`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify(data)
-                });
+                let response;
+                if (isEditing) {
+                    // Update existing product
+                    response = await fetch(`${API_URL}/api/products/${isEditing}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify(data)
+                    });
+                } else {
+                    // Add new product
+                    response = await fetch(`${API_URL}/api/products`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify(data)
+                    });
+                }
 
                 const result = await response.json();
 
                 if (response.ok) {
-                    showMessage('Product added successfully!', 'success', 'dashboardMessage');
-                    event.target.reset();
+                    showMessage(isEditing ? 'Product updated successfully!' : 'Product added successfully!', 'success', 'dashboardMessage');
+                    cancelEdit();
                     loadSupplierProducts();
                 } else {
-                    showMessage(result.error || 'Failed to add product', 'error', 'dashboardMessage');
+                    showMessage(result.error || 'Failed to save product', 'error', 'dashboardMessage');
                 }
             } catch (error) {
                 showMessage('Network error. Please try again.', 'error', 'dashboardMessage');
             }
+        }
+
+        function editProduct(id, sku, name, price, unit) {
+            // Scroll to form
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            
+            // Fill the form with existing data
+            document.getElementById('product-sku').value = sku;
+            document.getElementById('product-name').value = name;
+            document.getElementById('product-price').value = price;
+            document.getElementById('product-unit').value = unit;
+            
+            // Change the form title and button
+            document.querySelector('.add-product-section h2').textContent = 'Edit Product';
+            const form = document.querySelector('.add-product-section form');
+            const submitButton = form.querySelector('button[type="submit"]');
+            submitButton.textContent = 'Update Product';
+            submitButton.style.background = '#28a745';
+            
+            // Store the product ID for update
+            form.dataset.editId = id;
+            
+            // Add a cancel button if it doesn't exist
+            if (!document.getElementById('cancel-edit-btn')) {
+                const cancelBtn = document.createElement('button');
+                cancelBtn.id = 'cancel-edit-btn';
+                cancelBtn.type = 'button';
+                cancelBtn.className = 'btn-secondary';
+                cancelBtn.textContent = 'Cancel Edit';
+                cancelBtn.onclick = cancelEdit;
+                form.appendChild(cancelBtn);
+            }
+        }
+
+        function cancelEdit() {
+            const form = document.querySelector('.add-product-section form');
+            form.reset();
+            delete form.dataset.editId;
+            
+            document.querySelector('.add-product-section h2').textContent = 'Add New Product';
+            const submitButton = form.querySelector('button[type="submit"]');
+            submitButton.textContent = 'Add Product';
+            submitButton.style.background = '';
+            
+            const cancelBtn = document.getElementById('cancel-edit-btn');
+            if (cancelBtn) cancelBtn.remove();
         }
 
         async function loadSupplierProducts() {
@@ -678,18 +797,37 @@
                     return;
                 }
 
-                container.innerHTML = products.map(product => `
-                    <div class="product-card">
-                        <h3>${product.name}</h3>
-                        <div class="product-info"><strong>SKU:</strong> ${product.sku}</div>
-                        <div class="product-info"><strong>Price:</strong> $${product.price.toFixed(2)}</div>
-                        <div class="product-info"><strong>Unit:</strong> ${product.unit}</div>
-                        <div class="product-info"><strong>Last Updated:</strong> ${new Date(product.lastUpdated).toLocaleString()}</div>
-                        <div style="margin-top: 12px;">
-                            <button class="btn-small btn-danger" onclick="deleteProduct('${product._id}')">Delete</button>
-                        </div>
-                    </div>
-                `).join('');
+                container.innerHTML = `
+                    <table class="product-table">
+                        <thead>
+                            <tr>
+                                <th>SKU</th>
+                                <th>Product Name</th>
+                                <th>Price</th>
+                                <th>Unit</th>
+                                <th>Last Updated</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${products.map(product => `
+                                <tr>
+                                    <td><strong>${product.sku}</strong></td>
+                                    <td>${product.name}</td>
+                                    <td>$${product.price.toFixed(2)}</td>
+                                    <td>${product.unit}</td>
+                                    <td>${new Date(product.lastUpdated).toLocaleString()}</td>
+                                    <td>
+                                        <div class="table-actions">
+                                            <button class="btn-small btn-success" onclick="editProduct('${product._id}', '${product.sku}', '${product.name}', ${product.price}, '${product.unit}')">Edit</button>
+                                            <button class="btn-small btn-danger" onclick="deleteProduct('${product._id}')">Delete</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                `;
             } catch (error) {
                 showMessage('Failed to load products', 'error', 'dashboardMessage');
             }
@@ -744,16 +882,29 @@
                                 Contact: ${group.supplier.contactPerson} | ${group.supplier.email}
                             </div>
                         </div>
-                        <div class="product-grid">
-                            ${group.products.map(product => `
-                                <div class="product-card">
-                                    <h3>${product.name}</h3>
-                                    <div class="product-info"><strong>SKU:</strong> ${product.sku}</div>
-                                    <div class="product-info"><strong>Price:</strong> $${product.price.toFixed(2)}</div>
-                                    <div class="product-info"><strong>Unit:</strong> ${product.unit}</div>
-                                    <div class="product-info"><strong>Last Updated:</strong> ${new Date(product.lastUpdated).toLocaleString()}</div>
-                                </div>
-                            `).join('')}
+                        <div class="product-table-container">
+                            <table class="product-table">
+                                <thead>
+                                    <tr>
+                                        <th>SKU</th>
+                                        <th>Product Name</th>
+                                        <th>Price</th>
+                                        <th>Unit</th>
+                                        <th>Last Updated</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${group.products.map(product => `
+                                        <tr>
+                                            <td><strong>${product.sku}</strong></td>
+                                            <td>${product.name}</td>
+                                            <td>$${product.price.toFixed(2)}</td>
+                                            <td>${product.unit}</td>
+                                            <td>${new Date(product.lastUpdated).toLocaleString()}</td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 `).join('');
