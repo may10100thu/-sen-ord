@@ -30,6 +30,13 @@ const supplierSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now }
 });
 
+// Admin Schema
+const adminSchema = new mongoose.Schema({
+  username: { type: String, required: true, unique: true },
+  password: { type: String, required: true },
+  createdAt: { type: Date, default: Date.now }
+});
+
 // Product Schema
 const productSchema = new mongoose.Schema({
   supplierId: { type: mongoose.Schema.Types.ObjectId, ref: 'Supplier', required: true },
@@ -41,6 +48,7 @@ const productSchema = new mongoose.Schema({
 });
 
 const Supplier = mongoose.model('Supplier', supplierSchema);
+const Admin = mongoose.model('Admin', adminSchema);
 const Product = mongoose.model('Product', productSchema);
 
 // JWT Secret
@@ -64,17 +72,47 @@ const authenticateToken = (req, res, next) => {
   });
 };
 
-// Owner authentication
-const OWNER_EMAIL = process.env.OWNER_EMAIL || 'owner@example.com';
-const OWNER_PASSWORD = process.env.OWNER_PASSWORD || 'owner123';
+// Initialize default admin account if none exists
+async function initializeAdmin() {
+  try {
+    const adminCount = await Admin.countDocuments();
+    if (adminCount === 0) {
+      const defaultUsername = process.env.ADMIN_USERNAME || 'admin';
+      const defaultPassword = process.env.ADMIN_PASSWORD || 'admin123';
+      const hashedPassword = await bcrypt.hash(defaultPassword, 10);
+      
+      const admin = new Admin({
+        username: defaultUsername,
+        password: hashedPassword
+      });
+      
+      await admin.save();
+      console.log(`✓ Default admin account created - Username: ${defaultUsername}`);
+    } else {
+      console.log(`✓ Admin account already exists (${adminCount} account(s) found)`);
+    }
+  } catch (error) {
+    if (error.code === 11000) {
+      console.log('✓ Admin account already exists in database');
+    } else {
+      console.error('Error initializing admin:', error);
+    }
+  }
+}
+
+// Call initialization after MongoDB connection
+mongoose.connection.once('open', () => {
+  console.log('Connected to MongoDB');
+  initializeAdmin();
+});
 
 // Routes
 
-// Owner creates supplier account - NO LIMIT
-app.post('/api/owner/create-supplier', authenticateToken, async (req, res) => {
+// Admin creates supplier account - NO LIMIT
+app.post('/api/admin/create-supplier', authenticateToken, async (req, res) => {
   try {
-    if (req.user.role !== 'owner') {
-      return res.status(403).json({ error: 'Access denied. Only owners can create suppliers.' });
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({ error: 'Access denied. Only admins can create suppliers.' });
     }
 
     const { username, password, companyName, contactPerson } = req.body;
@@ -120,9 +158,9 @@ app.post('/api/owner/create-supplier', authenticateToken, async (req, res) => {
 });
 
 // Get all suppliers with product count
-app.get('/api/owner/suppliers', authenticateToken, async (req, res) => {
+app.get('/api/admin/suppliers', authenticateToken, async (req, res) => {
   try {
-    if (req.user.role !== 'owner') {
+    if (req.user.role !== 'admin') {
       return res.status(403).json({ error: 'Access denied' });
     }
 
@@ -146,10 +184,10 @@ app.get('/api/owner/suppliers', authenticateToken, async (req, res) => {
   }
 });
 
-// Get statistics for owner dashboard
-app.get('/api/owner/statistics', authenticateToken, async (req, res) => {
+// Get statistics for admin dashboard
+app.get('/api/admin/statistics', authenticateToken, async (req, res) => {
   try {
-    if (req.user.role !== 'owner') {
+    if (req.user.role !== 'admin') {
       return res.status(403).json({ error: 'Access denied' });
     }
 
@@ -181,10 +219,10 @@ app.get('/api/owner/statistics', authenticateToken, async (req, res) => {
   }
 });
 
-// Get products for a specific supplier (Owner only)
-app.get('/api/owner/supplier/:supplierId/products', authenticateToken, async (req, res) => {
+// Get products for a specific supplier (Admin only)
+app.get('/api/admin/supplier/:supplierId/products', authenticateToken, async (req, res) => {
   try {
-    if (req.user.role !== 'owner') {
+    if (req.user.role !== 'admin') {
       return res.status(403).json({ error: 'Access denied' });
     }
 
@@ -195,10 +233,10 @@ app.get('/api/owner/supplier/:supplierId/products', authenticateToken, async (re
   }
 });
 
-// Delete supplier (Owner only)
-app.delete('/api/owner/suppliers/:id', authenticateToken, async (req, res) => {
+// Delete supplier (Admin only)
+app.delete('/api/admin/suppliers/:id', authenticateToken, async (req, res) => {
   try {
-    if (req.user.role !== 'owner') {
+    if (req.user.role !== 'admin') {
       return res.status(403).json({ error: 'Access denied' });
     }
 
@@ -266,25 +304,70 @@ app.post('/api/supplier/login', async (req, res) => {
   }
 });
 
-// Owner Login
-app.post('/api/owner/login', async (req, res) => {
+// Admin Login
+app.post('/api/admin/login', async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { username, password } = req.body;
 
-    if (email !== OWNER_EMAIL || password !== OWNER_PASSWORD) {
+    // Find admin in database
+    const admin = await Admin.findOne({ username });
+    
+    if (!admin) {
       return res.status(400).json({ error: 'Invalid credentials' });
     }
 
+    // Check password
+    const validPassword = await bcrypt.compare(password, admin.password);
+    if (!validPassword) {
+      return res.status(400).json({ error: 'Invalid credentials' });
+    }
+
+    // Create JWT token
     const token = jwt.sign(
-      { email, role: 'owner' },
+      { id: admin._id, username: admin.username, role: 'admin' },
       JWT_SECRET,
       { expiresIn: '24h' }
     );
 
     res.json({
       token,
-      owner: { email }
+      admin: { 
+        username: admin.username
+      }
     });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Change Admin Password (Admin only)
+app.put('/api/admin/change-password', authenticateToken, async (req, res) => {
+  try {
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({ error: 'Access denied' });
+    }
+
+    const { currentPassword, newPassword } = req.body;
+
+    // Find admin
+    const admin = await Admin.findById(req.user.id);
+    
+    if (!admin) {
+      return res.status(404).json({ error: 'Admin not found' });
+    }
+
+    // Verify current password
+    const validPassword = await bcrypt.compare(currentPassword, admin.password);
+    if (!validPassword) {
+      return res.status(400).json({ error: 'Current password is incorrect' });
+    }
+
+    // Hash and update new password
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    admin.password = hashedPassword;
+    await admin.save();
+
+    res.json({ message: 'Password changed successfully' });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -397,10 +480,10 @@ app.delete('/api/products/:id', authenticateToken, async (req, res) => {
   }
 });
 
-// Get All Products by Supplier (Owner only)
-app.get('/api/owner/products', authenticateToken, async (req, res) => {
+// Get All Products by Supplier (Admin only)
+app.get('/api/admin/products', authenticateToken, async (req, res) => {
   try {
-    if (req.user.role !== 'owner') {
+    if (req.user.role !== 'admin') {
       return res.status(403).json({ error: 'Access denied' });
     }
 
@@ -432,10 +515,10 @@ app.get('/api/owner/products', authenticateToken, async (req, res) => {
   }
 });
 
-// Update Product (Owner only)
-app.put('/api/owner/products/:id', authenticateToken, async (req, res) => {
+// Update Product (Admin only)
+app.put('/api/admin/products/:id', authenticateToken, async (req, res) => {
   try {
-    if (req.user.role !== 'owner') {
+    if (req.user.role !== 'admin') {
       return res.status(403).json({ error: 'Access denied' });
     }
 
@@ -457,10 +540,10 @@ app.put('/api/owner/products/:id', authenticateToken, async (req, res) => {
   }
 });
 
-// Delete Product (Owner only)
-app.delete('/api/owner/products/:id', authenticateToken, async (req, res) => {
+// Delete Product (Admin only)
+app.delete('/api/admin/products/:id', authenticateToken, async (req, res) => {
   try {
-    if (req.user.role !== 'owner') {
+    if (req.user.role !== 'admin') {
       return res.status(403).json({ error: 'Access denied' });
     }
 
@@ -492,7 +575,14 @@ app.get('/supplier-management.html', (req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
+
+// Initialize admin account on startup
+mongoose.connection.once('open', async () => {
+  console.log('Connected to MongoDB');
+  await initializeAdmin();
+});
+
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
-  console.log(`Owner credentials - Email: ${OWNER_EMAIL}, Password: ${OWNER_PASSWORD}`);
+  console.log('Admin login: Check database for admin account');
 });
