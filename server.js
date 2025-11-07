@@ -5,24 +5,28 @@ const jwt = require('jsonwebtoken');
 const cors = require('cors');
 const path = require('path');
 
+require('dotenv').config();
 const app = express();
 app.use(express.json());
 app.use(cors());
 app.use(express.static('public'));
 
 // MongoDB connection
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/supplier-portal';
+const MONGODB_URI = process.env.MONGODB_URL ;
 mongoose.connect(MONGODB_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true
 });
 
-// Supplier Schema
+// Supplier Schema - Simplified
 const supplierSchema = new mongoose.Schema({
-  email: { type: String, required: true, unique: true },
+  email: { type: String, required: true, unique: true }, // Used as username for backward compatibility
+  username: { type: String, unique: true, sparse: true }, // Alternative username field
   password: { type: String, required: true },
   companyName: { type: String, required: true },
   contactPerson: { type: String, required: true },
+  productCount: { type: Number, default: 0 },
+  lastActive: { type: Date },
   createdAt: { type: Date, default: Date.now }
 });
 
@@ -60,13 +64,13 @@ const authenticateToken = (req, res, next) => {
   });
 };
 
-// Owner authentication (you can set owner credentials)
+// Owner authentication
 const OWNER_EMAIL = process.env.OWNER_EMAIL || 'owner@example.com';
 const OWNER_PASSWORD = process.env.OWNER_PASSWORD || 'owner123';
 
 // Routes
 
-// Owner creates supplier account
+// Owner creates supplier account - NO LIMIT
 app.post('/api/owner/create-supplier', authenticateToken, async (req, res) => {
   try {
     if (req.user.role !== 'owner') {
@@ -76,7 +80,13 @@ app.post('/api/owner/create-supplier', authenticateToken, async (req, res) => {
     const { username, password, companyName, contactPerson } = req.body;
 
     // Check if username already exists
-    const existingSupplier = await Supplier.findOne({ email: username });
+    const existingSupplier = await Supplier.findOne({ 
+      $or: [
+        { email: username },
+        { username: username }
+      ]
+    });
+    
     if (existingSupplier) {
       return res.status(400).json({ error: 'Username already exists' });
     }
@@ -86,10 +96,12 @@ app.post('/api/owner/create-supplier', authenticateToken, async (req, res) => {
 
     // Create new supplier
     const supplier = new Supplier({
-      email: username,
+      email: username, // For backward compatibility
+      username: username,
       password: hashedPassword,
       companyName,
-      contactPerson
+      contactPerson,
+      productCount: 0
     });
 
     await supplier.save();
@@ -107,7 +119,7 @@ app.post('/api/owner/create-supplier', authenticateToken, async (req, res) => {
   }
 });
 
-// Get all suppliers (Owner only)
+// Get all suppliers with product count
 app.get('/api/owner/suppliers', authenticateToken, async (req, res) => {
   try {
     if (req.user.role !== 'owner') {
@@ -115,10 +127,69 @@ app.get('/api/owner/suppliers', authenticateToken, async (req, res) => {
     }
 
     const suppliers = await Supplier.find().select('-password');
+    
+    // Add product count for each supplier
+    const suppliersWithCount = await Promise.all(suppliers.map(async (supplier) => {
+      const productCount = await Product.countDocuments({ supplierId: supplier._id });
+      return {
+        ...supplier.toObject(),
+        productCount
+      };
+    }));
+
     res.json({
-      suppliers,
-      count: suppliers.length
+      suppliers: suppliersWithCount,
+      count: suppliersWithCount.length
     });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get statistics for owner dashboard
+app.get('/api/owner/statistics', authenticateToken, async (req, res) => {
+  try {
+    if (req.user.role !== 'owner') {
+      return res.status(403).json({ error: 'Access denied' });
+    }
+
+    const totalSuppliers = await Supplier.countDocuments();
+    const totalProducts = await Product.countDocuments();
+    
+    // Get suppliers active today
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const activeToday = await Supplier.countDocuments({
+      lastActive: { $gte: today }
+    });
+
+    // Get new suppliers this week
+    const weekAgo = new Date();
+    weekAgo.setDate(weekAgo.getDate() - 7);
+    const newThisWeek = await Supplier.countDocuments({
+      createdAt: { $gte: weekAgo }
+    });
+
+    res.json({
+      totalSuppliers,
+      totalProducts,
+      activeToday,
+      newThisWeek
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get products for a specific supplier (Owner only)
+app.get('/api/owner/supplier/:supplierId/products', authenticateToken, async (req, res) => {
+  try {
+    if (req.user.role !== 'owner') {
+      return res.status(403).json({ error: 'Access denied' });
+    }
+
+    const products = await Product.find({ supplierId: req.params.supplierId });
+    res.json(products);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -152,8 +223,14 @@ app.post('/api/supplier/login', async (req, res) => {
   try {
     const { username, password } = req.body;
 
-    // Find supplier by username (stored as email field)
-    const supplier = await Supplier.findOne({ email: username });
+    // Find supplier by username or email
+    const supplier = await Supplier.findOne({ 
+      $or: [
+        { email: username },
+        { username: username }
+      ]
+    });
+    
     if (!supplier) {
       return res.status(400).json({ error: 'Invalid credentials' });
     }
@@ -163,6 +240,10 @@ app.post('/api/supplier/login', async (req, res) => {
     if (!validPassword) {
       return res.status(400).json({ error: 'Invalid credentials' });
     }
+
+    // Update last active
+    supplier.lastActive = new Date();
+    await supplier.save();
 
     // Create JWT token
     const token = jwt.sign(
@@ -175,7 +256,7 @@ app.post('/api/supplier/login', async (req, res) => {
       token,
       supplier: {
         id: supplier._id,
-        username: supplier.email,
+        username: supplier.username || supplier.email,
         companyName: supplier.companyName,
         contactPerson: supplier.contactPerson
       }
@@ -209,7 +290,7 @@ app.post('/api/owner/login', async (req, res) => {
   }
 });
 
-// Add Product (Supplier only)
+// Add Product (Supplier only) - WITH 50 PRODUCT LIMIT
 app.post('/api/products', authenticateToken, async (req, res) => {
   try {
     if (req.user.role !== 'supplier') {
@@ -218,8 +299,11 @@ app.post('/api/products', authenticateToken, async (req, res) => {
 
     // Check product count for this supplier
     const productCount = await Product.countDocuments({ supplierId: req.user.id });
+    
     if (productCount >= 50) {
-      return res.status(400).json({ error: 'Maximum product limit (50) reached. Please delete some products before adding new ones.' });
+      return res.status(400).json({ 
+        error: 'Product limit reached. Maximum 50 products per supplier.' 
+      });
     }
 
     const { sku, name, price, unit } = req.body;
@@ -234,6 +318,11 @@ app.post('/api/products', authenticateToken, async (req, res) => {
     });
 
     await product.save();
+
+    // Update supplier's product count
+    await Supplier.findByIdAndUpdate(req.user.id, {
+      productCount: productCount + 1
+    });
 
     res.status(201).json({ message: 'Product added successfully', product });
   } catch (error) {
@@ -296,6 +385,12 @@ app.delete('/api/products/:id', authenticateToken, async (req, res) => {
       return res.status(404).json({ error: 'Product not found' });
     }
 
+    // Update supplier's product count
+    const productCount = await Product.countDocuments({ supplierId: req.user.id });
+    await Supplier.findByIdAndUpdate(req.user.id, {
+      productCount: productCount
+    });
+
     res.json({ message: 'Product deleted successfully' });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -309,7 +404,7 @@ app.get('/api/owner/products', authenticateToken, async (req, res) => {
       return res.status(403).json({ error: 'Access denied' });
     }
 
-    const products = await Product.find().populate('supplierId', 'companyName contactPerson email');
+    const products = await Product.find().populate('supplierId', 'companyName contactPerson email username');
     
     // Group products by supplier
     const groupedProducts = products.reduce((acc, product) => {
@@ -337,9 +432,63 @@ app.get('/api/owner/products', authenticateToken, async (req, res) => {
   }
 });
 
+// Update Product (Owner only)
+app.put('/api/owner/products/:id', authenticateToken, async (req, res) => {
+  try {
+    if (req.user.role !== 'owner') {
+      return res.status(403).json({ error: 'Access denied' });
+    }
+
+    const { sku, name, price, unit } = req.body;
+
+    const product = await Product.findByIdAndUpdate(
+      req.params.id,
+      { sku, name, price, unit, lastUpdated: new Date() },
+      { new: true }
+    );
+
+    if (!product) {
+      return res.status(404).json({ error: 'Product not found' });
+    }
+
+    res.json({ message: 'Product updated successfully', product });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Delete Product (Owner only)
+app.delete('/api/owner/products/:id', authenticateToken, async (req, res) => {
+  try {
+    if (req.user.role !== 'owner') {
+      return res.status(403).json({ error: 'Access denied' });
+    }
+
+    const product = await Product.findByIdAndDelete(req.params.id);
+
+    if (!product) {
+      return res.status(404).json({ error: 'Product not found' });
+    }
+
+    // Update supplier's product count
+    const productCount = await Product.countDocuments({ supplierId: product.supplierId });
+    await Supplier.findByIdAndUpdate(product.supplierId, {
+      productCount: productCount
+    });
+
+    res.json({ message: 'Product deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Serve frontend
-app.get('*', (req, res) => {
+app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+app.get('/supplier-management.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'supplier-management.html'));
 });
 
 const PORT = process.env.PORT || 3000;
