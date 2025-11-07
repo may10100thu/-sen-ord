@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manage Suppliers - Owner Portal</title>
+    <title>Manage Suppliers - Admin Portal</title>
     <style>
         * {
             margin: 0;
@@ -361,7 +361,7 @@
         let token = localStorage.getItem('token');
         let userRole = localStorage.getItem('userRole');
 
-        if (!token || userRole !== 'owner') {
+        if (!token || userRole !== 'admin') {
             window.location.href = 'index.html';
         }
 
@@ -387,7 +387,7 @@
             };
 
             try {
-                const response = await fetch(`${API_URL}/api/owner/create-supplier`, {
+                const response = await fetch(`${API_URL}/api/admin/create-supplier`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -412,7 +412,7 @@
 
         async function loadSuppliers() {
             try {
-                const response = await fetch(`${API_URL}/api/owner/suppliers`, {
+                const response = await fetch(`${API_URL}/api/admin/suppliers`, {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
@@ -424,7 +424,7 @@
                 document.getElementById('totalSuppliers').textContent = result.count;
                 document.getElementById('supplierCount').textContent = result.count;
                 
-                const productsResponse = await fetch(`${API_URL}/api/owner/products`, {
+                const productsResponse = await fetch(`${API_URL}/api/admin/products`, {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
@@ -454,7 +454,7 @@
                         <tbody>
                             ${suppliers.map(supplier => `
                                 <tr>
-                                    <td><strong>${supplier.email}</strong></td>
+                                    <td><strong>${supplier.username || supplier.email}</strong></td>
                                     <td>${supplier.companyName}</td>
                                     <td>${supplier.contactPerson}</td>
                                     <td>${new Date(supplier.createdAt).toLocaleDateString()}</td>
@@ -475,7 +475,7 @@
             if (!confirm(`Are you sure you want to delete ${companyName}? This will also delete all their products.`)) return;
 
             try {
-                const response = await fetch(`${API_URL}/api/owner/suppliers/${supplierId}`, {
+                const response = await fetch(`${API_URL}/api/admin/suppliers/${supplierId}`, {
                     method: 'DELETE',
                     headers: {
                         'Authorization': `Bearer ${token}`
