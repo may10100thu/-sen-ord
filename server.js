@@ -75,12 +75,6 @@ app.post('/api/owner/create-supplier', authenticateToken, async (req, res) => {
 
     const { username, password, companyName, contactPerson } = req.body;
 
-    // Check total supplier count
-    const supplierCount = await Supplier.countDocuments();
-    if (supplierCount >= 50) {
-      return res.status(400).json({ error: 'Maximum supplier limit (50) reached' });
-    }
-
     // Check if username already exists
     const existingSupplier = await Supplier.findOne({ email: username });
     if (existingSupplier) {
@@ -123,8 +117,7 @@ app.get('/api/owner/suppliers', authenticateToken, async (req, res) => {
     const suppliers = await Supplier.find().select('-password');
     res.json({
       suppliers,
-      count: suppliers.length,
-      maxSuppliers: 50
+      count: suppliers.length
     });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -221,6 +214,12 @@ app.post('/api/products', authenticateToken, async (req, res) => {
   try {
     if (req.user.role !== 'supplier') {
       return res.status(403).json({ error: 'Access denied' });
+    }
+
+    // Check product count for this supplier
+    const productCount = await Product.countDocuments({ supplierId: req.user.id });
+    if (productCount >= 50) {
+      return res.status(400).json({ error: 'Maximum product limit (50) reached. Please delete some products before adding new ones.' });
     }
 
     const { sku, name, price, unit } = req.body;
