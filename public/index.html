@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Supplier Portal</title>
+    <title>Customer Portal</title>
     <style>
         * {
             margin: 0;
@@ -226,20 +226,6 @@
             gap: 15px;
         }
 
-        .add-product-section {
-            background: #f8f9fa;
-            padding: 25px;
-            border-radius: 10px;
-            margin-bottom: 30px;
-            border-left: 4px solid #C9B37E;
-        }
-
-        .add-product-section h2 {
-            font-size: 20px;
-            margin-bottom: 20px;
-            color: #121426;
-        }
-
         .section-title {
             font-size: 20px;
             color: #121426;
@@ -261,12 +247,14 @@
             margin-top: 20px;
             border-radius: 10px;
             overflow: hidden;
+            -webkit-overflow-scrolling: touch;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
             background: #FFFFFF;
+            min-width: 600px;
         }
 
         table thead {
@@ -332,14 +320,14 @@
             display: block;
         }
 
-        .supplier-accordion {
+        .customer-accordion {
             margin-bottom: 20px;
             border-radius: 10px;
             overflow: hidden;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
 
-        .supplier-accordion-header {
+        .customer-accordion-header {
             background: linear-gradient(135deg, #121426 0%, #1a1d35 100%);
             padding: 20px 25px;
             cursor: pointer;
@@ -350,35 +338,35 @@
             user-select: none;
         }
 
-        .supplier-accordion-header:hover {
+        .customer-accordion-header:hover {
             background: linear-gradient(135deg, #1a1d35 0%, #242745 100%);
         }
 
-        .supplier-accordion-header.active {
+        .customer-accordion-header.active {
             background: #C9B37E;
         }
 
-        .supplier-info {
+        .customer-info {
             flex: 1;
         }
 
-        .supplier-name {
+        .customer-name {
             font-size: 19px;
             font-weight: 700;
             margin-bottom: 5px;
             color: #FFFFFF;
         }
 
-        .supplier-accordion-header.active .supplier-name {
+        .customer-accordion-header.active .customer-name {
             color: #121426;
         }
 
-        .supplier-details {
+        .customer-details {
             font-size: 13px;
             color: rgba(255, 255, 255, 0.7);
         }
 
-        .supplier-accordion-header.active .supplier-details {
+        .customer-accordion-header.active .customer-details {
             color: #121426;
             opacity: 0.8;
         }
@@ -389,24 +377,24 @@
             color: #C9B37E;
         }
 
-        .supplier-accordion-header.active .accordion-arrow {
+        .customer-accordion-header.active .accordion-arrow {
             transform: rotate(180deg);
             color: #121426;
         }
 
-        .supplier-accordion-content {
+        .customer-accordion-content {
             max-height: 0;
             overflow: hidden;
             transition: max-height 0.4s ease-out;
             background: #FFFFFF;
         }
 
-        .supplier-accordion-content.active {
+        .customer-accordion-content.active {
             max-height: 3000px;
             transition: max-height 0.6s ease-in;
         }
 
-        .supplier-accordion-body {
+        .customer-accordion-body {
             padding: 25px;
         }
 
@@ -420,12 +408,12 @@
             margin-right: 15px;
         }
 
-        .supplier-accordion-header.active .product-count-badge {
+        .customer-accordion-header.active .product-count-badge {
             background: #121426;
             color: #C9B37E;
         }
 
-        .manage-suppliers-btn {
+        .manage-customers-btn {
             background: #C9B37E;
             color: #121426;
             border: none;
@@ -439,26 +427,10 @@
             transition: all 0.3s;
         }
 
-        .manage-suppliers-btn:hover {
+        .manage-customers-btn:hover {
             background: #d4c390;
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(201, 179, 126, 0.3);
-        }
-
-        .product-count-display {
-            display: none;
-        }
-
-        .product-count-display span {
-            color: #FFFFFF;
-            font-weight: 600;
-            font-size: 16px;
-        }
-
-        .product-count-number {
-            color: #C9B37E !important;
-            font-size: 24px !important;
-            font-weight: 700 !important;
         }
 
         .auth-footer {
@@ -515,6 +487,19 @@
             height: auto;
         }
 
+        input[type="number"].order-input {
+            width: 100px;
+            padding: 8px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        input[type="number"].order-input:focus {
+            border-color: #C9B37E;
+            box-shadow: 0 0 0 3px rgba(201, 179, 126, 0.1);
+        }
+
         @media (max-width: 768px) {
             .form-row {
                 grid-template-columns: 1fr;
@@ -525,8 +510,9 @@
             }
 
             .auth-container {
-                padding: 30px 25px;
-                margin: 30px auto;
+                padding: 25px 20px;
+                margin: 20px auto;
+                max-width: 100%;
             }
 
             .dashboard {
@@ -534,16 +520,61 @@
             }
 
             h1 {
-                font-size: 24px;
+                font-size: 22px;
             }
 
             h2 {
-                font-size: 20px;
+                font-size: 18px;
             }
 
             .header {
                 flex-direction: column;
                 gap: 15px;
+                padding: 15px;
+            }
+
+            .logout-btn {
+                width: 100%;
+            }
+
+            .tabs {
+                flex-direction: column;
+            }
+
+            .tab {
+                width: 100%;
+            }
+
+            table th, table td {
+                padding: 12px 8px;
+                font-size: 12px;
+            }
+
+            .btn-small {
+                padding: 6px 12px;
+                font-size: 12px;
+            }
+
+            .table-actions {
+                flex-direction: column;
+            }
+
+            .customer-name {
+                font-size: 16px;
+            }
+
+            .customer-details {
+                font-size: 11px;
+            }
+
+            .product-count-badge {
+                font-size: 11px;
+                padding: 4px 12px;
+            }
+
+            .manage-customers-btn {
+                width: 100%;
+                text-align: center;
             }
         }
     </style>
@@ -553,23 +584,23 @@
         <!-- Login Container -->
         <div id="authContainer" class="auth-container">
             <div class="tabs">
-                <button class="tab active" onclick="switchTab('supplier-login')">Supplier Login</button>
+                <button class="tab active" onclick="switchTab('customer-login')">Customer Login</button>
                 <button class="tab" onclick="switchTab('admin-login')">Admin Login</button>
             </div>
 
             <div id="message" class="message"></div>
 
-            <!-- Supplier Login -->
-            <div id="supplier-login" class="tab-content active">
-                <h2>Supplier Login</h2>
-                <form onsubmit="handleSupplierLogin(event)">
+            <!-- Customer Login -->
+            <div id="customer-login" class="tab-content active">
+                <h2>Customer Login</h2>
+                <form onsubmit="handleCustomerLogin(event)">
                     <div class="form-group">
                         <label>Username</label>
-                        <input type="text" id="supplier-login-username" required>
+                        <input type="text" id="customer-login-username" required>
                     </div>
                     <div class="form-group">
                         <label>Password</label>
-                        <input type="password" id="supplier-login-password" required>
+                        <input type="password" id="customer-login-password" required>
                     </div>
                     <button type="submit">Login</button>
                 </form>
@@ -595,54 +626,21 @@
             </div>
         </div>
 
-        <!-- Supplier Dashboard -->
-        <div id="supplierDashboard" class="dashboard">
+        <!-- Customer Dashboard -->
+        <div id="customerDashboard" class="dashboard">
             <div class="header">
                 <div>
-                    <h1>Supplier Dashboard</h1>
-                    <div class="user-info" id="supplierInfo"></div>
+                    <h1>Customer Dashboard</h1>
+                    <div class="user-info" id="customerInfo"></div>
                 </div>
                 <button class="logout-btn" onclick="logout()">Logout</button>
             </div>
 
             <div id="dashboardMessage" class="message"></div>
 
-            <!-- Product Count Display -->
-            <div class="product-count-display">
-                <span>Products: <span class="product-count-number" id="productCount">0</span>/50</span>
-            </div>
-
-            <!-- Add Product Form -->
-            <div class="add-product-section">
-                <h2>Add New Product</h2>
-                <form onsubmit="handleAddProduct(event)">
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>SKU</label>
-                            <input type="text" id="product-sku" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Product Name</label>
-                            <input type="text" id="product-name" required>
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Price</label>
-                            <input type="number" step="0.01" id="product-price" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Unit</label>
-                            <input type="text" id="product-unit" placeholder="e.g., kg, pieces, liters" required>
-                        </div>
-                    </div>
-                    <button type="submit">Add Product</button>
-                </form>
-            </div>
-
-            <!-- Products List -->
-            <h2 class="section-title">My Products</h2>
-            <div id="supplierProducts" class="product-table-container"></div>
+            <!-- Products List with Order Amounts -->
+            <h2 class="section-title">My Products - Enter Order Amounts</h2>
+            <div id="customerProducts" class="product-table-container"></div>
         </div>
 
         <!-- Admin Dashboard -->
@@ -650,26 +648,33 @@
             <div class="header">
                 <div>
                     <h1>Admin Dashboard</h1>
-                    <div class="user-info">View All Suppliers & Inventory</div>
+                    <div class="user-info">View All Customers & Orders</div>
                 </div>
                 <button class="logout-btn" onclick="logout()">Logout</button>
             </div>
 
             <div id="adminDashboardMessage" class="message"></div>
 
-            <a href="manage-suppliers.html" class="manage-suppliers-btn">+ Manage Supplier Accounts</a>
-
-            <!-- Products by Supplier with Dropdown -->
-            <h2 class="section-title">Supplier Inventory (<span id="totalSuppliersCount">0</span> Suppliers)</h2>
+            <a href="manage-customers.html" class="manage-customers-btn">+ Manage Customer Accounts</a>          
+            <a href="products.html" class="manage-customers-btn">Manage Products List</a>    
+            
+            <!-- Products by Customer with Dropdown -->
+            <h2 class="section-title">Customer Orders (<span id="totalCustomersCount">0</span> Customers)</h2>
             <div id="adminProducts"></div>
         </div>
     </div>
 
-    <!-- Edit Product Modal -->
+    <!-- Edit Product Modal (Admin) -->
     <div id="editModal" class="modal">
         <div class="modal-content">
             <h2>Edit Product</h2>
             <form id="editProductForm" onsubmit="handleAdminEditProduct(event)">
+                <div class="form-group">
+                    <label>Customer</label>
+                    <select id="edit-product-customer" required style="width: 100%; padding: 14px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px;">
+                        <option value="">Select Customer</option>
+                    </select>
+                </div>
                 <div class="form-group">
                     <label>SKU</label>
                     <input type="text" id="edit-product-sku" required>
@@ -700,6 +705,7 @@
         let userRole = localStorage.getItem('userRole');
         let userData = JSON.parse(localStorage.getItem('userData') || '{}');
         let currentEditProductId = null;
+        let allCustomers = [];
 
         if (token && userRole) {
             showDashboard();
@@ -727,16 +733,16 @@
             msgElement.classList.remove('show');
         }
 
-        async function handleSupplierLogin(event) {
+        async function handleCustomerLogin(event) {
             event.preventDefault();
             
             const data = {
-                username: document.getElementById('supplier-login-username').value,
-                password: document.getElementById('supplier-login-password').value
+                username: document.getElementById('customer-login-username').value,
+                password: document.getElementById('customer-login-password').value
             };
 
             try {
-                const response = await fetch(`${API_URL}/api/supplier/login`, {
+                const response = await fetch(`${API_URL}/api/customer/login`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(data)
@@ -746,8 +752,8 @@
 
                 if (response.ok) {
                     token = result.token;
-                    userRole = 'supplier';
-                    userData = result.supplier;
+                    userRole = 'customer';
+                    userData = result.customer;
                     
                     localStorage.setItem('token', token);
                     localStorage.setItem('userRole', userRole);
@@ -800,123 +806,47 @@
         function showDashboard() {
             document.getElementById('authContainer').style.display = 'none';
             
-            if (userRole === 'supplier') {
-                document.getElementById('supplierDashboard').style.display = 'block';
-                document.getElementById('supplierInfo').textContent = 
+            if (userRole === 'customer') {
+                document.getElementById('customerDashboard').style.display = 'block';
+                document.getElementById('customerInfo').textContent = 
                     `${userData.companyName} - ${userData.contactPerson}`;
-                loadSupplierProducts();
+                loadCustomerProducts();
             } else if (userRole === 'admin') {
                 document.getElementById('adminDashboard').style.display = 'block';
                 loadAdminProducts();
+                loadAllCustomers();
             }
         }
 
-        async function handleAddProduct(event) {
-            event.preventDefault();
-            
-            const form = event.target;
-            const isEditing = form.dataset.editId;
-            
-            const data = {
-                sku: document.getElementById('product-sku').value,
-                name: document.getElementById('product-name').value,
-                price: parseFloat(document.getElementById('product-price').value),
-                unit: document.getElementById('product-unit').value
-            };
-
+        async function loadCustomerProducts() {
             try {
-                let response;
-                if (isEditing) {
-                    response = await fetch(`${API_URL}/api/products/${isEditing}`, {
-                        method: 'PUT',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${token}`
-                        },
-                        body: JSON.stringify(data)
-                    });
-                } else {
-                    response = await fetch(`${API_URL}/api/products`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${token}`
-                        },
-                        body: JSON.stringify(data)
-                    });
-                }
-
-                const result = await response.json();
-
-                if (response.ok) {
-                    showMessage(isEditing ? 'Product updated successfully!' : 'Product added successfully!', 'success', 'dashboardMessage');
-                    cancelEdit();
-                    loadSupplierProducts();
-                } else {
-                    showMessage(result.error || 'Failed to save product', 'error', 'dashboardMessage');
-                }
-            } catch (error) {
-                showMessage('Network error. Please try again.', 'error', 'dashboardMessage');
-            }
-        }
-
-        function editProduct(id, sku, name, price, unit) {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-            
-            document.getElementById('product-sku').value = sku;
-            document.getElementById('product-name').value = name;
-            document.getElementById('product-price').value = price;
-            document.getElementById('product-unit').value = unit;
-            
-            document.querySelector('.add-product-section h2').textContent = 'Edit Product';
-            const form = document.querySelector('.add-product-section form');
-            const submitButton = form.querySelector('button[type="submit"]');
-            submitButton.textContent = 'Update Product';
-            submitButton.style.background = '#C9B37E';
-            
-            form.dataset.editId = id;
-            
-            if (!document.getElementById('cancel-edit-btn')) {
-                const cancelBtn = document.createElement('button');
-                cancelBtn.id = 'cancel-edit-btn';
-                cancelBtn.type = 'button';
-                cancelBtn.className = 'btn-secondary';
-                cancelBtn.textContent = 'Cancel Edit';
-                cancelBtn.onclick = cancelEdit;
-                form.appendChild(cancelBtn);
-            }
-        }
-
-        function cancelEdit() {
-            const form = document.querySelector('.add-product-section form');
-            form.reset();
-            delete form.dataset.editId;
-            
-            document.querySelector('.add-product-section h2').textContent = 'Add New Product';
-            const submitButton = form.querySelector('button[type="submit"]');
-            submitButton.textContent = 'Add Product';
-            submitButton.style.background = '';
-            
-            const cancelBtn = document.getElementById('cancel-edit-btn');
-            if (cancelBtn) cancelBtn.remove();
-        }
-
-        async function loadSupplierProducts() {
-            try {
+                console.log('Loading customer products...');
+                console.log('Token:', token ? 'exists' : 'missing');
+                console.log('User role:', userRole);
+                console.log('API URL:', `${API_URL}/api/products/my-products`);
+                
                 const response = await fetch(`${API_URL}/api/products/my-products`, {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
                 });
 
+                console.log('Response status:', response.status);
+                console.log('Response OK:', response.ok);
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('Error response:', errorText);
+                    throw new Error(`Failed to fetch products: ${response.status} - ${errorText}`);
+                }
+
                 const products = await response.json();
+                console.log('Products loaded:', products); // Debug log
 
-                document.getElementById('productCount').textContent = products.length;
-
-                const container = document.getElementById('supplierProducts');
+                const container = document.getElementById('customerProducts');
                 
                 if (products.length === 0) {
-                    container.innerHTML = '<div class="empty-state">No products added yet. Add your first product above!</div>';
+                    container.innerHTML = '<div class="empty-state">No products assigned yet. Contact admin to get products assigned.</div>';
                     return;
                 }
 
@@ -927,6 +857,7 @@
                                 <th>SKU</th>
                                 <th>Product Name</th>
                                 <th>Price</th>
+                                <th>Order Amount</th>
                                 <th>Unit</th>
                                 <th>Last Updated</th>
                                 <th>Actions</th>
@@ -938,13 +869,18 @@
                                     <td><strong>${product.sku}</strong></td>
                                     <td>${product.name}</td>
                                     <td>$${product.price.toFixed(2)}</td>
+                                    <td>
+                                        <input type="number" 
+                                               class="order-input" 
+                                               id="order-${product._id}" 
+                                               value="${product.orderAmount || 0}" 
+                                               min="0" 
+                                               step="1">
+                                    </td>
                                     <td>${product.unit}</td>
                                     <td>${new Date(product.lastUpdated).toLocaleString()}</td>
                                     <td>
-                                        <div class="table-actions">
-                                            <button class="btn-small btn-edit" onclick="editProduct('${product._id}', '${product.sku}', '${product.name.replace(/'/g, "\\'")}', ${product.price}, '${product.unit}')">Edit</button>
-                                            <button class="btn-small btn-delete" onclick="deleteProduct('${product._id}')">Delete</button>
-                                        </div>
+                                        <button class="btn-small btn-edit" onclick="updateOrderAmount('${product._id}')">Update</button>
                                     </td>
                                 </tr>
                             `).join('')}
@@ -952,31 +888,63 @@
                     </table>
                 `;
             } catch (error) {
-                showMessage('Failed to load products', 'error', 'dashboardMessage');
+                console.error('Error loading products:', error);
+                showMessage(`Failed to load products: ${error.message}`, 'error', 'dashboardMessage');
             }
         }
 
-        async function deleteProduct(productId) {
-            if (!confirm('Are you sure you want to delete this product?')) return;
+        async function updateOrderAmount(productId) {
+            const orderAmount = parseFloat(document.getElementById(`order-${productId}`).value);
+
+            if (orderAmount < 0) {
+                showMessage('Order amount cannot be negative', 'error', 'dashboardMessage');
+                return;
+            }
 
             try {
-                const response = await fetch(`${API_URL}/api/products/${productId}`, {
-                    method: 'DELETE',
+                const response = await fetch(`${API_URL}/api/orders/${productId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ orderAmount })
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    showMessage('Order amount updated successfully!', 'success', 'dashboardMessage');
+                    // Reload products to show updated data
+                    loadCustomerProducts();
+                } else {
+                    showMessage(result.error || 'Failed to update order amount', 'error', 'dashboardMessage');
+                }
+            } catch (error) {
+                console.error('Error updating order:', error);
+                showMessage('Network error. Please try again.', 'error', 'dashboardMessage');
+            }
+        }
+
+        async function loadAllCustomers() {
+            try {
+                const response = await fetch(`${API_URL}/api/admin/customers`, {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
                 });
 
                 const result = await response.json();
+                allCustomers = result.customers;
 
-                if (response.ok) {
-                    showMessage('Product deleted successfully!', 'success', 'dashboardMessage');
-                    loadSupplierProducts();
-                } else {
-                    showMessage(result.error || 'Failed to delete product', 'error', 'dashboardMessage');
-                }
+                // Populate customer dropdown in edit modal
+                const select = document.getElementById('edit-product-customer');
+                select.innerHTML = '<option value="">Select Customer</option>' +
+                    allCustomers.map(customer => 
+                        `<option value="${customer._id}">${customer.companyName} (${customer.username})</option>`
+                    ).join('');
             } catch (error) {
-                showMessage('Network error. Please try again.', 'error', 'dashboardMessage');
+                console.error('Failed to load customers');
             }
         }
 
@@ -988,24 +956,29 @@
                     }
                 });
 
-                const supplierGroups = await response.json();
+                if (!response.ok) {
+                    throw new Error('Failed to fetch products');
+                }
 
-                document.getElementById('totalSuppliersCount').textContent = supplierGroups.length;
+                const customerGroups = await response.json();
+                console.log('Customer groups loaded:', customerGroups); // Debug log
+
+                document.getElementById('totalCustomersCount').textContent = customerGroups.length;
 
                 const container = document.getElementById('adminProducts');
                 
-                if (supplierGroups.length === 0) {
-                    container.innerHTML = '<div class="empty-state">No suppliers or products yet. Create supplier accounts first.</div>';
+                if (customerGroups.length === 0) {
+                    container.innerHTML = '<div class="empty-state">No customers or products yet. Create customer accounts first.</div>';
                     return;
                 }
 
-                container.innerHTML = supplierGroups.map((group, index) => `
-                    <div class="supplier-accordion">
-                        <div class="supplier-accordion-header" onclick="toggleAccordion(${index})">
-                            <div class="supplier-info">
-                                <div class="supplier-name">${group.supplier.companyName}</div>
-                                <div class="supplier-details">
-                                    Contact: ${group.supplier.contactPerson} | Username: ${group.supplier.username || group.supplier.email}
+                container.innerHTML = customerGroups.map((group, index) => `
+                    <div class="customer-accordion">
+                        <div class="customer-accordion-header" onclick="toggleAccordion(${index})">
+                            <div class="customer-info">
+                                <div class="customer-name">${group.customer.companyName}</div>
+                                <div class="customer-details">
+                                    Contact: ${group.customer.contactPerson} | Username: ${group.customer.username}
                                 </div>
                             </div>
                             <div style="display: flex; align-items: center;">
@@ -1013,17 +986,17 @@
                                 <span class="accordion-arrow">▼</span>
                             </div>
                         </div>
-                        <div class="supplier-accordion-content" id="accordion-${index}">
-                            <div class="supplier-accordion-body">
+                        <div class="customer-accordion-content" id="accordion-${index}">
+                            <div class="customer-accordion-body">
                                 <table>
                                     <thead>
                                         <tr>
                                             <th>SKU</th>
                                             <th>Product Name</th>
                                             <th>Price</th>
+                                            <th>Order Amount</th>
                                             <th>Unit</th>
-                                            <th>Last Updated</th>
-                                            <th>Actions</th>
+                                            <th>Order Last Updated</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -1032,14 +1005,9 @@
                                                 <td><strong>${product.sku}</strong></td>
                                                 <td>${product.name}</td>
                                                 <td>$${product.price.toFixed(2)}</td>
+                                                <td><strong style="color: #C9B37E; font-size: 16px;">${product.orderAmount || 0}</strong></td>
                                                 <td>${product.unit}</td>
-                                                <td>${new Date(product.lastUpdated).toLocaleString()}</td>
-                                                <td>
-                                                    <div class="table-actions">
-                                                        <button class="btn-small btn-edit" onclick="openAdminEditModal('${product._id}', '${product.sku}', '${product.name.replace(/'/g, "\\'")}', ${product.price}, '${product.unit}')">Edit</button>
-                                                        <button class="btn-small btn-delete" onclick="adminDeleteProduct('${product._id}')">Delete</button>
-                                                    </div>
-                                                </td>
+                                                <td>${product.orderLastUpdated ? new Date(product.orderLastUpdated).toLocaleString() : '<em style="color: #999;">Not ordered yet</em>'}</td>
                                             </tr>
                                         `).join('')}
                                     </tbody>
@@ -1050,11 +1018,13 @@
                 `).join('');
             } catch (error) {
                 console.error('Failed to load products:', error);
+                showMessage('Failed to load products', 'error', 'adminDashboardMessage');
             }
         }
 
-        function openAdminEditModal(id, sku, name, price, unit) {
+        function openAdminEditModal(id, customerId, sku, name, price, unit) {
             currentEditProductId = id;
+            document.getElementById('edit-product-customer').value = customerId;
             document.getElementById('edit-product-sku').value = sku;
             document.getElementById('edit-product-name').value = name;
             document.getElementById('edit-product-price').value = price;
@@ -1072,6 +1042,7 @@
             event.preventDefault();
             
             const data = {
+                customerId: document.getElementById('edit-product-customer').value,
                 sku: document.getElementById('edit-product-sku').value,
                 name: document.getElementById('edit-product-name').value,
                 price: parseFloat(document.getElementById('edit-product-price').value),
@@ -1127,7 +1098,7 @@
         }
 
         function toggleAccordion(index) {
-            const header = document.querySelectorAll('.supplier-accordion-header')[index];
+            const header = document.querySelectorAll('.customer-accordion-header')[index];
             const content = document.getElementById(`accordion-${index}`);
             
             header.classList.toggle('active');
@@ -1143,7 +1114,7 @@
             userRole = null;
             userData = {};
             
-            document.getElementById('supplierDashboard').style.display = 'none';
+            document.getElementById('customerDashboard').style.display = 'none';
             document.getElementById('adminDashboard').style.display = 'none';
             document.getElementById('authContainer').style.display = 'block';
             
