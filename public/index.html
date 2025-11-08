@@ -487,6 +487,22 @@
             height: auto;
         }
 
+        .card {
+            background: #FFFFFF;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .card h2 {
+            color: #121426;
+            margin-bottom: 25px;
+            font-size: 22px;
+            border-bottom: 3px solid #C9B37E;
+            padding-bottom: 10px;
+        }
+
         input[type="number"].order-input {
             width: 100px;
             padding: 8px;
@@ -657,10 +673,14 @@
 
             <a href="manage-customers.html" class="manage-customers-btn">+ Manage Customer Accounts</a>          
             <a href="products.html" class="manage-customers-btn">Manage Products List</a>    
-            
+
             <!-- Products by Customer with Dropdown -->
-            <h2 class="section-title">Customer Orders (<span id="totalCustomersCount">0</span> Customers)</h2>
-            <div id="adminProducts"></div>
+            <div class="card">  
+                <h2 >Customer Orders (<span id="totalCustomersCount">0</span> Customers)</h2>
+                <div id="adminProducts"></div>
+            </div>
+
+            </div>
         </div>
     </div>
 
