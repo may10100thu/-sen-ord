@@ -18,16 +18,19 @@
             padding: 20px;
             font-size: 14px;
             color: #FFFFFF;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .container {
             max-width: 1400px;
             margin: 0 auto;
+            width: 100%;
         }
-
         .auth-container {
             max-width: 480px;
-            margin: 50px auto;
+            margin: 0 auto;
             background: #FFFFFF;
             padding: 40px;
             border-radius: 12px;
@@ -254,7 +257,7 @@
             overflow-x: auto;
             -webkit-overflow-scrolling: touch;
         }
-        
+
         table {
             width: 100%;
             border-collapse: collapse;
@@ -323,6 +326,35 @@
 
         .message.show {
             display: block;
+        }
+        .password-wrapper {
+            position: relative;
+            width: 100%;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 5px 8px;
+            color: #666;
+            font-size: 12px;
+            font-weight: 600;
+            width: auto;
+            height: auto;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .password-toggle:hover {
+            color: #C9B37E;
+            background: none;
+            transform: translateY(-50%);
+            box-shadow: none;
         }
 
         .customer-accordion {
@@ -533,7 +565,7 @@
 
             .auth-container {
                 padding: 25px 20px;
-                margin: 20px auto;
+                margin: 0 auto;
                 max-width: 100%;
             }
 
@@ -622,7 +654,10 @@
                     </div>
                     <div class="form-group">
                         <label>Password</label>
-                        <input type="password" id="customer-login-password" required>
+                        <div class="password-wrapper">
+                            <input type="password" id="customer-login-password" required>
+                            <button type="button" class="password-toggle" onclick="togglePassword('customer-login-password', this)">SHOW</button>
+                        </div>
                     </div>
                     <button type="submit">Login</button>
                 </form>
@@ -641,7 +676,10 @@
                     </div>
                     <div class="form-group">
                         <label>Password</label>
-                        <input type="password" id="admin-login-password" required>
+                        <div class="password-wrapper">
+                            <input type="password" id="admin-login-password" required>
+                            <button type="button" class="password-toggle" onclick="togglePassword('admin-login-password', this)">SHOW</button>
+                        </div>
                     </div>
                     <button type="submit">Login</button>
                 </form>
@@ -735,6 +773,16 @@
 
         if (token && userRole) {
             showDashboard();
+        }
+        function togglePassword(inputId, button) {
+            const input = document.getElementById(inputId);
+            if (input.type === 'password') {
+                input.type = 'text';
+                button.textContent = 'HIDE';
+            } else {
+                input.type = 'password';
+                button.textContent = 'SHOW';
+            }
         }
 
         function switchTab(tabId) {
