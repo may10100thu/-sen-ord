@@ -701,6 +701,11 @@
             <!-- Products List with Order Amounts -->
             <h2 class="section-title">My Products - Enter Order Amounts</h2>
             <div id="customerProducts" class="product-table-container"></div>
+
+            <!-- Submit Order Button -->
+            <div style="margin-top: 25px; text-align: right;">
+                <button class="btn-primary" onclick="submitAllOrders()" style="width: auto; padding: 14px 32px; font-size: 16px;">Submit Order</button>
+            </div>
         </div>
 
         <!-- Admin Dashboard -->
@@ -770,6 +775,19 @@
         let userData = JSON.parse(localStorage.getItem('userData') || '{}');
         let currentEditProductId = null;
         let allCustomers = [];
+
+        // Format date as DD/MM/YYYY HH:MM:SS
+        function formatDate(dateString) {
+            if (!dateString) return 'N/A';
+            const date = new Date(dateString);
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const year = date.getFullYear();
+            const hours = String(date.getHours()).padStart(2, '0');
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+            const seconds = String(date.getSeconds()).padStart(2, '0');
+            return `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
+        }
 
         if (token && userRole) {
             showDashboard();
@@ -944,15 +962,15 @@
                                     <td>${product.name}</td>
                                     <td>$${product.price.toFixed(2)}</td>
                                     <td>
-                                        <input type="number" 
-                                               class="order-input" 
-                                               id="order-${product._id}" 
-                                               value="${product.orderAmount || 0}" 
-                                               min="0" 
+                                        <input type="number"
+                                               class="order-input"
+                                               id="order-${product._id}"
+                                               value="${product.orderAmount || 0}"
+                                               min="0"
                                                step="1">
                                     </td>
                                     <td>${product.unit}</td>
-                                    <td>${new Date(product.lastUpdated).toLocaleString()}</td>
+                                    <td>${formatDate(product.lastUpdated)}</td>
                                     <td>
                                         <button class="btn-small btn-edit" onclick="updateOrderAmount('${product._id}')">Update</button>
                                     </td>
@@ -996,6 +1014,68 @@
                 }
             } catch (error) {
                 console.error('Error updating order:', error);
+                showMessage('Network error. Please try again.', 'error', 'dashboardMessage');
+            }
+        }
+
+        async function submitAllOrders() {
+            try {
+                // Get all products
+                const response = await fetch(`${API_URL}/api/products/my-products`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to fetch products');
+                }
+
+                const products = await response.json();
+
+                // Get current values from inputs
+                const orderUpdates = [];
+                for (const product of products) {
+                    const inputElement = document.getElementById(`order-${product._id}`);
+                    if (inputElement) {
+                        const orderAmount = parseFloat(inputElement.value) || 0;
+                        orderUpdates.push({
+                            productId: product._id,
+                            orderAmount: orderAmount
+                        });
+                    }
+                }
+
+                // Submit all orders
+                const submitResponse = await fetch(`${API_URL}/api/orders/submit-all`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ orders: orderUpdates })
+                });
+
+                const result = await submitResponse.json();
+
+                if (submitResponse.ok) {
+                    showMessage('All orders submitted successfully! Quantities have been reset.', 'success', 'dashboardMessage');
+
+                    // Reset all input fields to 0
+                    for (const product of products) {
+                        const inputElement = document.getElementById(`order-${product._id}`);
+                        if (inputElement) {
+                            inputElement.value = 0;
+                        }
+                    }
+
+                    // Reload products to show updated timestamps
+                    loadCustomerProducts();
+                } else {
+                    showMessage(result.error || 'Failed to submit orders', 'error', 'dashboardMessage');
+                }
+            } catch (error) {
+                console.error('Error submitting orders:', error);
                 showMessage('Network error. Please try again.', 'error', 'dashboardMessage');
             }
         }
@@ -1082,7 +1162,7 @@
                                                 <td>$${product.price.toFixed(2)}</td>
                                                 <td><strong style="color: #C9B37E; font-size: 16px;">${product.orderAmount || 0}</strong></td>
                                                 <td>${product.unit}</td>
-                                                <td>${product.orderLastUpdated ? new Date(product.orderLastUpdated).toLocaleString() : '<em style="color: #999;">Not ordered yet</em>'}</td>
+                                                <td>${product.orderLastUpdated ? formatDate(product.orderLastUpdated) : '<em style="color: #999;">Not ordered yet</em>'}</td>
                                             </tr>
                                         `).join('')}
                                     </tbody>
