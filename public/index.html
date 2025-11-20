@@ -1061,7 +1061,7 @@
                 if (submitResponse.ok) {
                     showMessage('All orders submitted successfully! Quantities have been reset.', 'success', 'dashboardMessage');
 
-                    // Reset all input fields to 0
+                    // Reset all input fields to 0 and keep them at 0
                     for (const product of products) {
                         const inputElement = document.getElementById(`order-${product._id}`);
                         if (inputElement) {
@@ -1069,8 +1069,15 @@
                         }
                     }
 
-                    // Reload products to show updated timestamps
-                    loadCustomerProducts();
+                    // Update the "Last Updated" timestamps in the table without reloading order amounts
+                    const tableRows = document.querySelectorAll('#customerProducts tbody tr');
+                    const submissionTime = formatDate(result.timestamp);
+                    tableRows.forEach(row => {
+                        const timestampCell = row.cells[5]; // "Last Updated" column
+                        if (timestampCell) {
+                            timestampCell.textContent = submissionTime;
+                        }
+                    });
                 } else {
                     showMessage(result.error || 'Failed to submit orders', 'error', 'dashboardMessage');
                 }
