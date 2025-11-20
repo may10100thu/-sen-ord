@@ -717,6 +717,67 @@ app.put('/api/orders/:productId', authenticateToken, async (req, res) => {
   }
 });
 
+// Submit all orders at once (Customer only)
+app.post('/api/orders/submit-all', authenticateToken, async (req, res) => {
+  try {
+    if (req.user.role !== 'customer') {
+      return res.status(403).json({ error: 'Access denied' });
+    }
+
+    const { orders } = req.body;
+
+    if (!orders || !Array.isArray(orders)) {
+      return res.status(400).json({ error: 'Invalid orders data' });
+    }
+
+    const timestamp = new Date();
+    const results = {
+      success: 0,
+      failed: 0,
+      errors: []
+    };
+
+    for (const orderData of orders) {
+      try {
+        const { productId, orderAmount } = orderData;
+
+        // Verify product belongs to this customer
+        const product = await Product.findOne({
+          _id: productId,
+          customerId: req.user.id
+        });
+
+        if (!product) {
+          results.failed++;
+          results.errors.push(`Product ${productId} not found`);
+          continue;
+        }
+
+        // Update or create order with timestamp
+        await Order.findOneAndUpdate(
+          { customerId: req.user.id, productId: productId },
+          { orderAmount, lastUpdated: timestamp },
+          { new: true, upsert: true }
+        );
+
+        results.success++;
+      } catch (err) {
+        results.failed++;
+        results.errors.push(`Error processing product ${orderData.productId}: ${err.message}`);
+      }
+    }
+
+    res.json({
+      message: `Successfully submitted ${results.success} orders`,
+      timestamp: timestamp,
+      results
+    });
+  } catch (error) {
+    console.error('Error submitting all orders:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Update Product (Admin only)
 app.put('/api/admin/products/:id', authenticateToken, async (req, res) => {
   try {
