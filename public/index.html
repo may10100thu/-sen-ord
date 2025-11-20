@@ -951,7 +951,7 @@
                                 <th>Price</th>
                                 <th>Order Amount</th>
                                 <th>Unit</th>
-                                <th>Last Updated</th>
+                                <th>Last Submitted</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -967,10 +967,11 @@
                                                id="order-${product._id}"
                                                value="${product.orderAmount || 0}"
                                                min="0"
-                                               step="1">
+                                               step="1"
+                                               placeholder="Enter amount">
                                     </td>
                                     <td>${product.unit}</td>
-                                    <td>${formatDate(product.lastUpdated)}</td>
+                                    <td>${product.lastSubmittedAmount > 0 ? formatDate(product.lastUpdated) : '<em style="color: #999;">Not submitted yet</em>'}</td>
                                     <td>
                                         <button class="btn-small btn-edit" onclick="updateOrderAmount('${product._id}')">Update</button>
                                     </td>
