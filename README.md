@@ -226,8 +226,3 @@ pm2 startup
 - Product edit functionality
 - Pagination for large datasets
 
-## License
-MIT
-
-## Support
-For issues or questions, please create an issue in the repository.
