@@ -664,14 +664,16 @@ app.get('/api/products/my-products', authenticateToken, async (req, res) => {
 
     // Get order amounts for each product
     const productsWithOrders = await Promise.all(products.map(async (product) => {
-      const order = await Order.findOne({ 
-        customerId: req.user.id, 
-        productId: product._id 
+      const order = await Order.findOne({
+        customerId: req.user.id,
+        productId: product._id
       });
-      
+
       return {
         ...product.toObject(),
-        orderAmount: order ? order.orderAmount : 0
+        orderAmount: order ? order.orderAmount : 0,
+        lastSubmittedAmount: order ? order.lastSubmittedAmount : 0,
+        lastUpdated: order ? order.lastUpdated : null
       };
     }));
 
@@ -754,9 +756,14 @@ app.post('/api/orders/submit-all', authenticateToken, async (req, res) => {
         }
 
         // Update or create order with timestamp
+        // Save orderAmount to lastSubmittedAmount, then reset orderAmount to 0
         await Order.findOneAndUpdate(
           { customerId: req.user.id, productId: productId },
-          { orderAmount, lastUpdated: timestamp },
+          {
+            lastSubmittedAmount: orderAmount,  // Save the submitted amount
+            orderAmount: 0,                     // Reset draft to 0
+            lastUpdated: timestamp
+          },
           { new: true, upsert: true }
         );
 
@@ -874,14 +881,14 @@ app.get('/api/admin/products', authenticateToken, async (req, res) => {
 
     // Get order amounts for each product
     const productsWithOrders = await Promise.all(validProducts.map(async (product) => {
-      const order = await Order.findOne({ 
-        customerId: product.customerId._id, 
-        productId: product._id 
+      const order = await Order.findOne({
+        customerId: product.customerId._id,
+        productId: product._id
       });
-      
+
       return {
         ...product.toObject(),
-        orderAmount: order ? order.orderAmount : 0,
+        orderAmount: order ? (order.lastSubmittedAmount || 0) : 0,  // Show last submitted amount
         orderLastUpdated: order ? order.lastUpdated : null
       };
     }));
