@@ -1060,7 +1060,7 @@
                 const result = await submitResponse.json();
 
                 if (submitResponse.ok) {
-                    showMessage('All orders submitted successfully! Quantities have been reset.', 'success', 'dashboardMessage');
+                    showMessage('All orders submitted successfully!', 'success', 'dashboardMessage');
 
                     // Reset all input fields to 0 and keep them at 0
                     for (const product of products) {
