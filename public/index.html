@@ -707,6 +707,11 @@
                 <button class="btn-secondary" onclick="updateAllDrafts()" style="width: auto; padding: 14px 32px; font-size: 16px;">Update</button>
                 <button class="btn-primary" onclick="submitAllOrders()" style="width: auto; padding: 14px 32px; font-size: 16px;">Submit Order</button>
             </div>
+
+            <!-- Last Submitted Info -->
+            <div id="lastSubmittedInfo" style="margin-top: 15px; text-align: right; color: #666; font-size: 14px;">
+                <em>Last submitted: Not submitted yet</em>
+            </div>
         </div>
 
         <!-- Admin Dashboard -->
@@ -952,7 +957,7 @@
                                 <th>Price</th>
                                 <th>Order Amount</th>
                                 <th>Unit</th>
-                                <th>Last Submitted</th>
+                                <th>Last Updated</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -971,12 +976,26 @@
                                                placeholder="Enter amount">
                                     </td>
                                     <td>${product.unit}</td>
-                                    <td>${product.lastSubmittedAmount > 0 ? formatDate(product.lastUpdated) : '<em style="color: #999;">Not submitted yet</em>'}</td>
+                                    <td>${product.lastUpdatedTimestamp ? formatDate(product.lastUpdatedTimestamp) : '<em style="color: #999;">Not updated yet</em>'}</td>
                                 </tr>
                             `).join('')}
                         </tbody>
                     </table>
                 `;
+
+                // Update last submitted info
+                const lastSubmittedTimestamps = products
+                    .map(p => p.lastSubmittedTimestamp)
+                    .filter(t => t != null);
+
+                const lastSubmittedInfoDiv = document.getElementById('lastSubmittedInfo');
+                if (lastSubmittedTimestamps.length > 0) {
+                    // Get the most recent submission timestamp
+                    const mostRecent = new Date(Math.max(...lastSubmittedTimestamps.map(t => new Date(t))));
+                    lastSubmittedInfoDiv.innerHTML = `<em>Last submitted: ${formatDate(mostRecent)}</em>`;
+                } else {
+                    lastSubmittedInfoDiv.innerHTML = '<em>Last submitted: Not submitted yet</em>';
+                }
             } catch (error) {
                 console.error('Error loading products:', error);
                 showMessage(`Failed to load products: ${error.message}`, 'error', 'dashboardMessage');
@@ -1138,6 +1157,10 @@
                             timestampCell.textContent = submissionTime;
                         }
                     });
+
+                    // Update the "Last Submitted" info below buttons
+                    const lastSubmittedInfoDiv = document.getElementById('lastSubmittedInfo');
+                    lastSubmittedInfoDiv.innerHTML = `<em>Last submitted: ${submissionTime}</em>`;
                 } else {
                     showMessage(result.error || 'Failed to submit orders', 'error', 'dashboardMessage');
                 }
