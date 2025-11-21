@@ -73,6 +73,7 @@ const orderSchema = new mongoose.Schema({
   customerId: { type: mongoose.Schema.Types.ObjectId, ref: 'Customer', required: true },
   productId: { type: mongoose.Schema.Types.ObjectId, ref: 'Product', required: true },
   orderAmount: { type: Number, required: true },
+  lastSubmittedAmount: { type: Number, default: 0 },  // Last submitted order amount (for admin view)
   lastUpdated: { type: Date, default: Date.now }
 });
 
@@ -757,7 +758,7 @@ app.post('/api/orders/submit-all', authenticateToken, async (req, res) => {
 
         // Update or create order with timestamp
         // Save orderAmount to lastSubmittedAmount, then reset orderAmount to 0
-        await Order.findOneAndUpdate(
+        const updatedOrder = await Order.findOneAndUpdate(
           { customerId: req.user.id, productId: productId },
           {
             lastSubmittedAmount: orderAmount,  // Save the submitted amount
@@ -766,6 +767,13 @@ app.post('/api/orders/submit-all', authenticateToken, async (req, res) => {
           },
           { new: true, upsert: true }
         );
+
+        console.log('Order updated:', {
+          productId,
+          orderAmount,
+          lastSubmittedAmount: updatedOrder.lastSubmittedAmount,
+          resetOrderAmount: updatedOrder.orderAmount
+        });
 
         results.success++;
       } catch (err) {
@@ -886,9 +894,17 @@ app.get('/api/admin/products', authenticateToken, async (req, res) => {
         productId: product._id
       });
 
+      console.log('Admin loading order:', {
+        productId: product._id,
+        hasOrder: !!order,
+        orderAmount: order?.orderAmount,
+        lastSubmittedAmount: order?.lastSubmittedAmount,
+        displayAmount: order ? (order.lastSubmittedAmount || 0) : 0
+      });
+
       return {
         ...product.toObject(),
-        orderAmount: order ? (order.lastSubmittedAmount || 0) : 0,  // Show last submitted amount
+        orderAmount: order ? (order.lastSubmittedAmount || 0) : 0,  // Show ONLY submitted amounts
         orderLastUpdated: order ? order.lastUpdated : null
       };
     }));
