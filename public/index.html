@@ -702,8 +702,9 @@
             <h2 class="section-title">My Products - Enter Order Amounts</h2>
             <div id="customerProducts" class="product-table-container"></div>
 
-            <!-- Submit Order Button -->
-            <div style="margin-top: 25px; text-align: right;">
+            <!-- Action Buttons -->
+            <div style="margin-top: 25px; text-align: right; display: flex; gap: 15px; justify-content: flex-end;">
+                <button class="btn-secondary" onclick="updateAllDrafts()" style="width: auto; padding: 14px 32px; font-size: 16px;">Update</button>
                 <button class="btn-primary" onclick="submitAllOrders()" style="width: auto; padding: 14px 32px; font-size: 16px;">Submit Order</button>
             </div>
         </div>
@@ -952,7 +953,6 @@
                                 <th>Order Amount</th>
                                 <th>Unit</th>
                                 <th>Last Submitted</th>
-                                <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -972,9 +972,6 @@
                                     </td>
                                     <td>${product.unit}</td>
                                     <td>${product.lastSubmittedAmount > 0 ? formatDate(product.lastUpdated) : '<em style="color: #999;">Not submitted yet</em>'}</td>
-                                    <td>
-                                        <button class="btn-small btn-edit" onclick="updateOrderAmount('${product._id}')">Update</button>
-                                    </td>
                                 </tr>
                             `).join('')}
                         </tbody>
@@ -1015,6 +1012,68 @@
                 }
             } catch (error) {
                 console.error('Error updating order:', error);
+                showMessage('Network error. Please try again.', 'error', 'dashboardMessage');
+            }
+        }
+
+        async function updateAllDrafts() {
+            try {
+                // Get all products
+                const response = await fetch(`${API_URL}/api/products/my-products`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to fetch products');
+                }
+
+                const products = await response.json();
+
+                // Update each product with current input value
+                let successCount = 0;
+                let failCount = 0;
+
+                for (const product of products) {
+                    const inputElement = document.getElementById(`order-${product._id}`);
+                    if (inputElement) {
+                        const orderAmount = parseFloat(inputElement.value) || 0;
+
+                        if (orderAmount < 0) {
+                            failCount++;
+                            continue;
+                        }
+
+                        try {
+                            const updateResponse = await fetch(`${API_URL}/api/orders/${product._id}`, {
+                                method: 'PUT',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'Authorization': `Bearer ${token}`
+                                },
+                                body: JSON.stringify({ orderAmount })
+                            });
+
+                            if (updateResponse.ok) {
+                                successCount++;
+                            } else {
+                                failCount++;
+                            }
+                        } catch (err) {
+                            failCount++;
+                        }
+                    }
+                }
+
+                if (successCount > 0) {
+                    showMessage(`Updated ${successCount} product(s) successfully!`, 'success', 'dashboardMessage');
+                    loadCustomerProducts();
+                } else {
+                    showMessage('No products were updated', 'error', 'dashboardMessage');
+                }
+            } catch (error) {
+                console.error('Error updating drafts:', error);
                 showMessage('Network error. Please try again.', 'error', 'dashboardMessage');
             }
         }
@@ -1060,7 +1119,7 @@
                 const result = await submitResponse.json();
 
                 if (submitResponse.ok) {
-                    showMessage('All orders submitted successfully!', 'success', 'dashboardMessage');
+                    showMessage('All orders submitted successfully! Quantities have been reset.', 'success', 'dashboardMessage');
 
                     // Reset all input fields to 0 and keep them at 0
                     for (const product of products) {
