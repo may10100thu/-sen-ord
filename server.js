@@ -68,13 +68,18 @@ const manageProductSchema = new mongoose.Schema({
   lastUpdated: { type: Date, default: Date.now }
 });
 
-// Order Schema - Customers can only input order amounts
+// Order Schema - Tracks both draft and submitted orders
 const orderSchema = new mongoose.Schema({
   customerId: { type: mongoose.Schema.Types.ObjectId, ref: 'Customer', required: true },
   productId: { type: mongoose.Schema.Types.ObjectId, ref: 'Product', required: true },
-  orderAmount: { type: Number, required: true },
-  lastSubmittedAmount: { type: Number, default: 0 },  // Last submitted order amount (for admin view)
-  lastUpdated: { type: Date, default: Date.now }
+
+  // Draft order (customer is working on)
+  orderAmount: { type: Number, default: 0 },  // Last updated amount (draft)
+  lastUpdatedTimestamp: { type: Date },  // When draft was last updated
+
+  // Submitted order (sent to admin)
+  lastSubmittedAmount: { type: Number, default: 0 },  // Last submitted amount
+  lastSubmittedTimestamp: { type: Date }  // When order was last submitted
 });
 
 const Customer = mongoose.model('Customer', customerSchema);
@@ -673,8 +678,9 @@ app.get('/api/products/my-products', authenticateToken, async (req, res) => {
       return {
         ...product.toObject(),
         orderAmount: order ? order.orderAmount : 0,
+        lastUpdatedTimestamp: order ? order.lastUpdatedTimestamp : null,
         lastSubmittedAmount: order ? order.lastSubmittedAmount : 0,
-        lastUpdated: order ? order.lastUpdated : null
+        lastSubmittedTimestamp: order ? order.lastSubmittedTimestamp : null
       };
     }));
 
@@ -706,10 +712,10 @@ app.put('/api/orders/:productId', authenticateToken, async (req, res) => {
       return res.status(404).json({ error: 'Product not found' });
     }
 
-    // Update or create order
+    // Update or create order (draft)
     const order = await Order.findOneAndUpdate(
       { customerId: req.user.id, productId: req.params.productId },
-      { orderAmount, lastUpdated: new Date() },
+      { orderAmount, lastUpdatedTimestamp: new Date() },
       { new: true, upsert: true }
     );
 
@@ -761,9 +767,10 @@ app.post('/api/orders/submit-all', authenticateToken, async (req, res) => {
         const updatedOrder = await Order.findOneAndUpdate(
           { customerId: req.user.id, productId: productId },
           {
-            lastSubmittedAmount: orderAmount,  // Save the submitted amount
-            orderAmount: 0,                     // Reset draft to 0
-            lastUpdated: timestamp
+            lastSubmittedAmount: orderAmount,      // Save the submitted amount
+            lastSubmittedTimestamp: timestamp,     // When submitted
+            orderAmount: 0,                        // Reset draft to 0
+            lastUpdatedTimestamp: timestamp        // Update the draft timestamp too
           },
           { new: true, upsert: true }
         );
@@ -897,15 +904,16 @@ app.get('/api/admin/products', authenticateToken, async (req, res) => {
       console.log('Admin loading order:', {
         productId: product._id,
         hasOrder: !!order,
-        orderAmount: order?.orderAmount,
-        lastSubmittedAmount: order?.lastSubmittedAmount,
+        draftAmount: order?.orderAmount,
+        submittedAmount: order?.lastSubmittedAmount,
+        submittedTimestamp: order?.lastSubmittedTimestamp,
         displayAmount: order ? (order.lastSubmittedAmount || 0) : 0
       });
 
       return {
         ...product.toObject(),
         orderAmount: order ? (order.lastSubmittedAmount || 0) : 0,  // Show ONLY submitted amounts
-        orderLastUpdated: order ? order.lastUpdated : null
+        orderLastUpdated: order ? order.lastSubmittedTimestamp : null  // Show submission timestamp
       };
     }));
     
