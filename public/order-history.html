@@ -207,9 +207,10 @@
                     historyContent.innerHTML = '<div class="empty-state">No order history yet for this customer</div>';
                 } else {
                     historyContent.innerHTML = history.map(submission => `
-                        <div class="submission-card">
-                            <div class="submission-header">
-                                Submitted: ${formatDate(submission.submittedAt)}
+                        <div class="submission-card" id="submission-${new Date(submission.submittedAt).getTime()}">
+                            <div class="submission-header" style="display: flex; justify-content: space-between; align-items: center;">
+                                <span>Submitted: ${formatDate(submission.submittedAt)}</span>
+                                <button onclick="archiveOrder('${submission.submittedAt}')" style="padding: 6px 16px; background: #ff6b6b; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600;">Archive</button>
                             </div>
                             <table>
                                 <thead>
@@ -255,6 +256,49 @@
 
         // Load history on page load
         loadOrderHistory();
+
+        // Archive order function
+        async function archiveOrder(submittedAt) {
+            if (!confirm('Archive this order? It will be automatically deleted after 60 days.')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/api/admin/archive-order/${customerId}/${encodeURIComponent(submittedAt)}`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to archive order');
+                }
+
+                const result = await response.json();
+
+                // Remove the submission card from display
+                const submissionCard = document.getElementById(`submission-${new Date(submittedAt).getTime()}`);
+                if (submissionCard) {
+                    submissionCard.style.opacity = '0';
+                    submissionCard.style.transition = 'opacity 0.3s';
+                    setTimeout(() => {
+                        submissionCard.remove();
+
+                        // Check if there are any submissions left
+                        const remainingCards = document.querySelectorAll('.submission-card');
+                        if (remainingCards.length === 0) {
+                            document.getElementById('historyContent').innerHTML = '<div class="empty-state">No order history yet for this customer</div>';
+                        }
+                    }, 300);
+                }
+
+                alert('Order archived successfully. It will be automatically deleted after 60 days.');
+            } catch (error) {
+                console.error('Error archiving order:', error);
+                alert('Failed to archive order. Please try again.');
+            }
+        }
     </script>
 </body>
 </html>
