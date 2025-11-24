@@ -82,11 +82,26 @@ const orderSchema = new mongoose.Schema({
   lastSubmittedTimestamp: { type: Date }  // When order was last submitted
 });
 
+// Order History Schema - Stores all past submissions
+const orderHistorySchema = new mongoose.Schema({
+  customerId: { type: mongoose.Schema.Types.ObjectId, ref: 'Customer', required: true },
+  productId: { type: mongoose.Schema.Types.ObjectId, ref: 'Product', required: true },
+  orderAmount: { type: Number, required: true },
+  submittedAt: { type: Date, required: true },
+  productDetails: {
+    sku: String,
+    name: String,
+    price: Number,
+    unit: String
+  }
+});
+
 const Customer = mongoose.model('Customer', customerSchema);
 const Admin = mongoose.model('Admin', adminSchema);
 const Product = mongoose.model('Product', productSchema);
 const Order = mongoose.model('Order', orderSchema);
 const MasterProduct = mongoose.model('MasterProduct', manageProductSchema);
+const OrderHistory = mongoose.model('OrderHistory', orderHistorySchema);
 
 // JWT Secret
 const JWT_SECRET = process.env.JWT_SECRET;
@@ -762,6 +777,21 @@ app.post('/api/orders/submit-all', authenticateToken, async (req, res) => {
           continue;
         }
 
+        // Save to order history
+        const historyEntry = new OrderHistory({
+          customerId: req.user.id,
+          productId: productId,
+          orderAmount: orderAmount,
+          submittedAt: timestamp,
+          productDetails: {
+            sku: product.sku,
+            name: product.name,
+            price: product.price,
+            unit: product.unit
+          }
+        });
+        await historyEntry.save();
+
         // Update or create order with timestamp
         // Save orderAmount to lastSubmittedAmount, then reset orderAmount to 0
         const updatedOrder = await Order.findOneAndUpdate(
@@ -943,6 +973,44 @@ app.get('/api/admin/products', authenticateToken, async (req, res) => {
     res.json(result);
   } catch (error) {
     console.error('Error in /api/admin/products:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get order history for a customer (Admin only)
+app.get('/api/admin/order-history/:customerId', authenticateToken, async (req, res) => {
+  try {
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({ error: 'Access denied' });
+    }
+
+    const history = await OrderHistory.find({ customerId: req.params.customerId })
+      .sort({ submittedAt: -1 })  // Most recent first
+      .limit(100);  // Limit to last 100 submissions
+
+    // Group by submission timestamp
+    const groupedHistory = history.reduce((acc, entry) => {
+      const timestamp = entry.submittedAt.toISOString();
+      if (!acc[timestamp]) {
+        acc[timestamp] = {
+          submittedAt: entry.submittedAt,
+          items: []
+        };
+      }
+      acc[timestamp].items.push({
+        sku: entry.productDetails.sku,
+        name: entry.productDetails.name,
+        price: entry.productDetails.price,
+        unit: entry.productDetails.unit,
+        orderAmount: entry.orderAmount
+      });
+      return acc;
+    }, {});
+
+    const result = Object.values(groupedHistory);
+    res.json(result);
+  } catch (error) {
+    console.error('Error fetching order history:', error);
     res.status(500).json({ error: error.message });
   }
 });
