@@ -1019,11 +1019,28 @@ app.get('/api/admin/order-history/:customerId', authenticateToken, async (req, r
       return res.status(403).json({ error: 'Access denied' });
     }
 
-    const history = await OrderHistory.find({
+    // Find the most recent submission timestamp for this customer
+    const mostRecentOrder = await OrderHistory.findOne({
+      customerId: req.params.customerId,
+      orderAmount: { $gt: 0 },
+      isArchived: { $ne: true }
+    })
+      .sort({ submittedAt: -1 })
+      .limit(1);
+
+    // Get all orders EXCEPT the most recent one
+    const query = {
       customerId: req.params.customerId,
       orderAmount: { $gt: 0 },  // Only get orders with quantity > 0
       isArchived: { $ne: true }  // Exclude archived orders
-    })
+    };
+
+    // If there's a most recent order, exclude it from history
+    if (mostRecentOrder) {
+      query.submittedAt = { $lt: mostRecentOrder.submittedAt };
+    }
+
+    const history = await OrderHistory.find(query)
       .sort({ submittedAt: -1 })  // Most recent first
       .limit(100);  // Limit to last 100 submissions
 
