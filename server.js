@@ -944,15 +944,22 @@ app.get('/api/admin/products', authenticateToken, async (req, res) => {
       //   displayAmount: order ? (order.lastSubmittedAmount || 0) : 0
       // });
 
+      const orderAmount = order ? (order.lastSubmittedAmount || 0) : 0;
+
       return {
         ...product.toObject(),
-        orderAmount: order ? (order.lastSubmittedAmount || 0) : 0,  // Show ONLY submitted amounts
+        orderAmount: orderAmount,  // Show ONLY submitted amounts
         orderLastUpdated: order ? order.lastSubmittedTimestamp : null  // Show submission timestamp
       };
     }));
-    
-    // Group products by customer
+
+    // Group products by customer, only including products with orderAmount > 0
     const groupedProducts = productsWithOrders.reduce((acc, product) => {
+      // Skip products with 0 or no order amount
+      if (product.orderAmount <= 0) {
+        return acc;
+      }
+
       const customerId = product.customerId._id.toString();
       if (!acc[customerId]) {
         acc[customerId] = {
@@ -1071,6 +1078,49 @@ app.get('/api/admin/order-history/:customerId', authenticateToken, async (req, r
   }
 });
 
+// Get order history for customer (view their own history)
+app.get('/api/customer/order-history', authenticateToken, async (req, res) => {
+  try {
+    if (req.user.role !== 'customer') {
+      return res.status(403).json({ error: 'Access denied' });
+    }
+
+    // Get all non-archived orders for this customer
+    const history = await OrderHistory.find({
+      customerId: req.user.id,
+      orderAmount: { $gt: 0 },  // Only get orders with quantity > 0
+      isArchived: { $ne: true }  // Exclude archived orders
+    })
+      .sort({ submittedAt: -1 })  // Most recent first
+      .limit(100);  // Limit to last 100 submissions
+
+    // Group by submission timestamp
+    const groupedHistory = history.reduce((acc, entry) => {
+      const timestamp = entry.submittedAt.toISOString();
+      if (!acc[timestamp]) {
+        acc[timestamp] = {
+          submittedAt: entry.submittedAt,
+          items: []
+        };
+      }
+      acc[timestamp].items.push({
+        sku: entry.productDetails.sku,
+        name: entry.productDetails.name,
+        price: entry.productDetails.price,
+        unit: entry.productDetails.unit,
+        orderAmount: entry.orderAmount
+      });
+      return acc;
+    }, {});
+
+    const result = Object.values(groupedHistory);
+    res.json(result);
+  } catch (error) {
+    console.error('Error fetching customer order history:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Serve frontend
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
@@ -1086,6 +1136,10 @@ app.get('/products.html', (req, res) => {
 
 app.get('/order-history.html', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'order-history.html'));
+});
+
+app.get('/customer-order-history.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'customer-order-history.html'));
 });
 
 const PORT = process.env.PORT || 3000;
