@@ -1226,7 +1226,7 @@
                                 </div>
                             </div>
                             <div style="display: flex; align-items: center; gap: 10px;">
-                                <a href="order-history.html?customerId=${group.customer._id}&companyName=${encodeURIComponent(group.customer.companyName)}" class="btn btn-small" style="padding: 6px 12px; text-decoration: none; display: inline-block;" onclick="event.stopPropagation();">View History</a>
+                                <button class="btn btn-small" style="padding: 6px 12px;" onclick="event.stopPropagation(); window.location.href='order-history.html?customerId=${group.customer._id}&companyName=${encodeURIComponent(group.customer.companyName)}'">View History</button>
                                 <span class="product-count-badge">${group.products.length} Products</span>
                                 <span class="accordion-arrow">▼</span>
                             </div>
