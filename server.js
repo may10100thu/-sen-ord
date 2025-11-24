@@ -777,20 +777,22 @@ app.post('/api/orders/submit-all', authenticateToken, async (req, res) => {
           continue;
         }
 
-        // Save to order history
-        const historyEntry = new OrderHistory({
-          customerId: req.user.id,
-          productId: productId,
-          orderAmount: orderAmount,
-          submittedAt: timestamp,
-          productDetails: {
-            sku: product.sku,
-            name: product.name,
-            price: product.price,
-            unit: product.unit
-          }
-        });
-        await historyEntry.save();
+        // Save to order history (only if quantity > 0)
+        if (orderAmount > 0) {
+          const historyEntry = new OrderHistory({
+            customerId: req.user.id,
+            productId: productId,
+            orderAmount: orderAmount,
+            submittedAt: timestamp,
+            productDetails: {
+              sku: product.sku,
+              name: product.name,
+              price: product.price,
+              unit: product.unit
+            }
+          });
+          await historyEntry.save();
+        }
 
         // Update or create order with timestamp
         // Save orderAmount to lastSubmittedAmount, then reset orderAmount to 0
