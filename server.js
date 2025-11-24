@@ -1028,6 +1028,10 @@ app.get('/products.html', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'products.html'));
 });
 
+app.get('/order-history.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'order-history.html'));
+});
+
 const PORT = process.env.PORT || 3000;
 
 // Initialize admin account on startup
