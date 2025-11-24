@@ -805,12 +805,12 @@ app.post('/api/orders/submit-all', authenticateToken, async (req, res) => {
           { new: true, upsert: true }
         );
 
-        console.log('Order updated:', {
-          productId,
-          orderAmount,
-          lastSubmittedAmount: updatedOrder.lastSubmittedAmount,
-          resetOrderAmount: updatedOrder.orderAmount
-        });
+        // console.log('Order updated:', {
+        //   productId,
+        //   orderAmount,
+        //   lastSubmittedAmount: updatedOrder.lastSubmittedAmount,
+        //   resetOrderAmount: updatedOrder.orderAmount
+        // });
 
         results.success++;
       } catch (err) {
@@ -931,14 +931,14 @@ app.get('/api/admin/products', authenticateToken, async (req, res) => {
         productId: product._id
       });
 
-      console.log('Admin loading order:', {
-        productId: product._id,
-        hasOrder: !!order,
-        draftAmount: order?.orderAmount,
-        submittedAmount: order?.lastSubmittedAmount,
-        submittedTimestamp: order?.lastSubmittedTimestamp,
-        displayAmount: order ? (order.lastSubmittedAmount || 0) : 0
-      });
+      // console.log('Admin loading order:', {
+      //   productId: product._id,
+      //   hasOrder: !!order,
+      //   draftAmount: order?.orderAmount,
+      //   submittedAmount: order?.lastSubmittedAmount,
+      //   submittedTimestamp: order?.lastSubmittedTimestamp,
+      //   displayAmount: order ? (order.lastSubmittedAmount || 0) : 0
+      // });
 
       return {
         ...product.toObject(),
