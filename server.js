@@ -986,7 +986,10 @@ app.get('/api/admin/order-history/:customerId', authenticateToken, async (req, r
       return res.status(403).json({ error: 'Access denied' });
     }
 
-    const history = await OrderHistory.find({ customerId: req.params.customerId })
+    const history = await OrderHistory.find({
+      customerId: req.params.customerId,
+      orderAmount: { $gt: 0 }  // Only get orders with quantity > 0
+    })
       .sort({ submittedAt: -1 })  // Most recent first
       .limit(100);  // Limit to last 100 submissions
 
