@@ -88,6 +88,8 @@ const orderHistorySchema = new mongoose.Schema({
   productId: { type: mongoose.Schema.Types.ObjectId, ref: 'Product', required: true },
   orderAmount: { type: Number, required: true },
   submittedAt: { type: Date, required: true },
+  isArchived: { type: Boolean, default: false },
+  archivedAt: { type: Date },
   productDetails: {
     sku: String,
     name: String,
@@ -979,6 +981,37 @@ app.get('/api/admin/products', authenticateToken, async (req, res) => {
   }
 });
 
+// Archive order submission (Admin only)
+app.post('/api/admin/archive-order/:customerId/:submittedAt', authenticateToken, async (req, res) => {
+  try {
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({ error: 'Access denied' });
+    }
+
+    const { customerId, submittedAt } = req.params;
+
+    // Archive all orders with this submission timestamp for this customer
+    const result = await OrderHistory.updateMany(
+      {
+        customerId: customerId,
+        submittedAt: new Date(submittedAt)
+      },
+      {
+        isArchived: true,
+        archivedAt: new Date()
+      }
+    );
+
+    res.json({
+      message: 'Order archived successfully',
+      modifiedCount: result.modifiedCount
+    });
+  } catch (error) {
+    console.error('Error archiving order:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Get order history for a customer (Admin only)
 app.get('/api/admin/order-history/:customerId', authenticateToken, async (req, res) => {
   try {
@@ -988,7 +1021,8 @@ app.get('/api/admin/order-history/:customerId', authenticateToken, async (req, r
 
     const history = await OrderHistory.find({
       customerId: req.params.customerId,
-      orderAmount: { $gt: 0 }  // Only get orders with quantity > 0
+      orderAmount: { $gt: 0 },  // Only get orders with quantity > 0
+      isArchived: { $ne: true }  // Exclude archived orders
     })
       .sort({ submittedAt: -1 })  // Most recent first
       .limit(100);  // Limit to last 100 submissions
@@ -1039,10 +1073,34 @@ app.get('/order-history.html', (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 
+// Cleanup archived orders older than 60 days
+async function cleanupArchivedOrders() {
+  try {
+    const sixtyDaysAgo = new Date();
+    sixtyDaysAgo.setDate(sixtyDaysAgo.getDate() - 60);
+
+    const result = await OrderHistory.deleteMany({
+      isArchived: true,
+      archivedAt: { $lt: sixtyDaysAgo }
+    });
+
+    if (result.deletedCount > 0) {
+      console.log(`Deleted ${result.deletedCount} archived orders older than 60 days`);
+    }
+  } catch (error) {
+    console.error('Error cleaning up archived orders:', error);
+  }
+}
+
+// Run cleanup daily (every 24 hours)
+setInterval(cleanupArchivedOrders, 24 * 60 * 60 * 1000);
+
 // Initialize admin account on startup
 mongoose.connection.once('open', async () => {
   console.log('Connected to MongoDB');
   await initializeAdmin();
+  // Run cleanup on startup
+  cleanupArchivedOrders();
 });
 
 app.listen(PORT, () => {
