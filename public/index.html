@@ -4,636 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Customer Portal</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, #121426 0%, #1a1d35 100%);
-            min-height: 100vh;
-            padding: 20px;
-            font-size: 14px;
-            color: #FFFFFF;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            width: 100%;
-        }
-        .auth-container {
-            max-width: 480px;
-            margin: 0 auto;
-            background: #FFFFFF;
-            padding: 40px;
-            border-radius: 12px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-        }
-
-        .dashboard {
-            display: none;
-            background: #FFFFFF;
-            padding: 30px;
-            border-radius: 12px;
-            margin-top: 20px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-        }
-
-        h1 {
-            color: #121426;
-            margin-bottom: 10px;
-            font-size: 28px;
-        }
-
-        h2 {
-            color: #121426;
-            margin-bottom: 20px;
-            font-size: 22px;
-        }
-
-        .tabs {
-            display: flex;
-            gap: 0;
-            margin-bottom: 30px;
-            border-radius: 8px;
-            overflow: hidden;
-            border: 2px solid #C9B37E;
-        }
-
-        .tab {
-            flex: 1;
-            padding: 14px 20px;
-            background: #FFFFFF;
-            border: none;
-            cursor: pointer;
-            font-size: 14px;
-            color: #121426;
-            transition: all 0.3s;
-            font-weight: 500;
-        }
-
-        .tab.active {
-            background: #C9B37E;
-            color: #121426;
-            font-weight: 700;
-        }
-
-        .tab:hover:not(.active) {
-            background: #f5f5f5;
-        }
-
-        .tab-content {
-            display: none;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 8px;
-            color: #121426;
-            font-weight: 600;
-            font-size: 14px;
-        }
-
-        input {
-            width: 100%;
-            padding: 14px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 14px;
-            background: #FFFFFF;
-            color: #121426;
-            transition: all 0.3s;
-        }
-
-        input:focus {
-            outline: none;
-            border-color: #C9B37E;
-            box-shadow: 0 0 0 4px rgba(201, 179, 126, 0.1);
-        }
-
-        button {
-            width: 100%;
-            padding: 14px;
-            background: #C9B37E;
-            color: #121426;
-            border: none;
-            border-radius: 8px;
-            font-size: 15px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        button:hover {
-            background: #d4c390;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(201, 179, 126, 0.3);
-        }
-
-        .btn-secondary {
-            background: #121426;
-            color: #FFFFFF;
-        }
-
-        .btn-secondary:hover {
-            background: #1f2138;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(18, 20, 38, 0.3);
-        }
-
-        .btn-small {
-            width: auto;
-            padding: 8px 16px;
-            font-size: 13px;
-            margin: 4px;
-        }
-
-        .btn-edit {
-            background: #C9B37E;
-            color: #121426;
-            border: 2px solid #C9B37E;
-        }
-
-        .btn-edit:hover {
-            background: #d4c390;
-            border-color: #d4c390;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(201, 179, 126, 0.3);
-        }
-
-        .btn-delete {
-            background: #FFFFFF;
-            color: #121426;
-            border: 2px solid #121426;
-        }
-
-        .btn-delete:hover {
-            background: #121426;
-            color: #FFFFFF;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(18, 20, 38, 0.3);
-        }
-
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-            padding: 20px;
-            background: linear-gradient(135deg, #121426 0%, #1a1d35 100%);
-            border-radius: 10px;
-        }
-
-        .header h1 {
-            color: #FFFFFF;
-        }
-
-        .user-info {
-            color: #C9B37E;
-            font-size: 13px;
-            margin-top: 5px;
-        }
-
-        .logout-btn {
-            background: transparent;
-            border: 2px solid #C9B37E;
-            color: #C9B37E;
-            width: auto;
-            padding: 10px 24px;
-            font-size: 14px;
-        }
-
-        .logout-btn:hover {
-            background: #C9B37E;
-            color: #121426;
-        }
-
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-        }
-
-        .section-title {
-            font-size: 20px;
-            color: #121426;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 3px solid #C9B37E;
-            font-weight: 700;
-        }
-
-        .empty-state {
-            text-align: center;
-            color: #888;
-            padding: 50px;
-            font-size: 15px;
-        }
-
-        .product-table-container {
-            overflow-x: auto;
-            overflow-y: visible;
-            margin-top: 20px;
-            border-radius: 10px;
-            -webkit-overflow-scrolling: touch;
-        }
-
-        .table-container {
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            background: #FFFFFF;
-            min-width: 600px;
-        }
-
-        table thead {
-            background: #121426;
-            color: #FFFFFF;
-        }
-
-        table th {
-            padding: 16px;
-            text-align: left;
-            font-weight: 600;
-            font-size: 13px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        table td {
-            padding: 16px;
-            border-bottom: 1px solid #e8e8e8;
-            font-size: 14px;
-            color: #121426;
-        }
-
-        table tbody tr {
-            transition: all 0.2s;
-        }
-
-        table tbody tr:hover {
-            background-color: rgba(201, 179, 126, 0.08);
-        }
-
-        table tbody tr:last-child td {
-            border-bottom: none;
-        }
-
-        .table-actions {
-            display: flex;
-            gap: 8px;
-        }
-
-        .message {
-            padding: 14px 18px;
-            margin-bottom: 20px;
-            border-radius: 8px;
-            display: none;
-            font-size: 14px;
-            font-weight: 500;
-        }
-
-        .message.success {
-            background: #d4edda;
-            color: #155724;
-            border-left: 4px solid #28a745;
-        }
-
-        .message.error {
-            background: #f8d7da;
-            color: #721c24;
-            border-left: 4px solid #dc3545;
-        }
-
-        .message.show {
-            display: block;
-        }
-        .password-wrapper {
-            position: relative;
-            width: 100%;
-        }
-
-        .password-toggle {
-            position: absolute;
-            right: 14px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: none;
-            border: none;
-            cursor: pointer;
-            padding: 5px 8px;
-            color: #666;
-            font-size: 12px;
-            font-weight: 600;
-            width: auto;
-            height: auto;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .password-toggle:hover {
-            color: #C9B37E;
-            background: none;
-            transform: translateY(-50%);
-            box-shadow: none;
-        }
-
-        .customer-accordion {
-            margin-bottom: 20px;
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        .customer-accordion-header {
-            background: linear-gradient(135deg, #121426 0%, #1a1d35 100%);
-            padding: 20px 25px;
-            cursor: pointer;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            transition: all 0.3s;
-            user-select: none;
-        }
-
-        .customer-accordion-header:hover {
-            background: linear-gradient(135deg, #1a1d35 0%, #242745 100%);
-        }
-
-        .customer-accordion-header.active {
-            background: #C9B37E;
-        }
-
-        .customer-info {
-            flex: 1;
-        }
-
-        .customer-name {
-            font-size: 19px;
-            font-weight: 700;
-            margin-bottom: 5px;
-            color: #FFFFFF;
-        }
-
-        .customer-accordion-header.active .customer-name {
-            color: #121426;
-        }
-
-        .customer-details {
-            font-size: 13px;
-            color: rgba(255, 255, 255, 0.7);
-        }
-
-        .customer-accordion-header.active .customer-details {
-            color: #121426;
-            opacity: 0.8;
-        }
-
-        .accordion-arrow {
-            font-size: 24px;
-            transition: transform 0.3s;
-            color: #C9B37E;
-        }
-
-        .customer-accordion-header.active .accordion-arrow {
-            transform: rotate(180deg);
-            color: #121426;
-        }
-
-        .customer-accordion-content {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.4s ease-out;
-            background: #FFFFFF;
-        }
-
-        .customer-accordion-content.active {
-            max-height: 3000px;
-            transition: max-height 0.6s ease-in;
-            overflow: visible;
-        }
-
-        .customer-accordion-body {
-            padding: 25px;
-        }
-
-        .product-count-badge {
-            background: #C9B37E;
-            color: #121426;
-            padding: 6px 16px;
-            border-radius: 20px;
-            font-size: 13px;
-            font-weight: 700;
-            margin-right: 15px;
-        }
-
-        .customer-accordion-header.active .product-count-badge {
-            background: #121426;
-            color: #C9B37E;
-        }
-
-        .manage-customers-btn {
-            background: #C9B37E;
-            color: #121426;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 8px;
-            text-decoration: none;
-            font-weight: 700;
-            font-size: 15px;
-            display: inline-block;
-            margin-bottom: 25px;
-            transition: all 0.3s;
-        }
-
-        .manage-customers-btn:hover {
-            background: #d4c390;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(201, 179, 126, 0.3);
-        }
-
-        .auth-footer {
-            margin-top: 20px;
-            text-align: center;
-            color: #666;
-            font-size: 13px;
-        }
-
-        /* Edit Modal */
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.7);
-        }
-
-        .modal.show {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .modal-content {
-            background: #FFFFFF;
-            padding: 30px;
-            border-radius: 12px;
-            width: 90%;
-            max-width: 500px;
-            box-shadow: 0 10px 50px rgba(0, 0, 0, 0.5);
-        }
-
-        .modal-content h2 {
-            margin-bottom: 25px;
-            border-bottom: 3px solid #C9B37E;
-            padding-bottom: 10px;
-        }
-
-        .modal-actions {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-top: 20px;
-        }
-
-        .modal-actions button {
-            width: 100%;
-            padding: 14px;
-            margin: 0;
-            height: auto;
-        }
-
-        .card {
-            background: #FFFFFF;
-            border-radius: 12px;
-            padding: 30px;
-            margin-bottom: 30px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-        }
-
-        .card h2 {
-            color: #121426;
-            margin-bottom: 25px;
-            font-size: 22px;
-            border-bottom: 3px solid #C9B37E;
-            padding-bottom: 10px;
-        }
-
-        input[type="number"].order-input {
-            width: 100px;
-            padding: 8px;
-            border: 2px solid #e0e0e0;
-            border-radius: 6px;
-            font-size: 14px;
-        }
-
-        input[type="number"].order-input:focus {
-            border-color: #C9B37E;
-            box-shadow: 0 0 0 3px rgba(201, 179, 126, 0.1);
-        }
-
-        @media (max-width: 768px) {
-            .form-row {
-                grid-template-columns: 1fr;
-            }
-
-            body {
-                padding: 10px;
-            }
-
-            .auth-container {
-                padding: 25px 20px;
-                margin: 0 auto;
-                max-width: 100%;
-            }
-
-            .dashboard {
-                padding: 20px;
-            }
-
-            h1 {
-                font-size: 22px;
-            }
-
-            h2 {
-                font-size: 18px;
-            }
-
-            .header {
-                flex-direction: column;
-                gap: 15px;
-                padding: 15px;
-            }
-
-            .logout-btn {
-                width: 100%;
-            }
-
-            .tabs {
-                flex-direction: column;
-            }
-
-            .tab {
-                width: 100%;
-            }
-
-            table th, table td {
-                padding: 12px 8px;
-                font-size: 12px;
-            }
-
-            .btn-small {
-                padding: 6px 12px;
-                font-size: 12px;
-            }
-
-            .table-actions {
-                flex-direction: column;
-            }
-
-            .customer-name {
-                font-size: 16px;
-            }
-
-            .customer-details {
-                font-size: 11px;
-            }
-
-            .product-count-badge {
-                font-size: 11px;
-                padding: 4px 12px;
-            }
-
-            .manage-customers-btn {
-                width: 100%;
-                text-align: center;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="/css/common.css">
+    <link rel="stylesheet" href="/css/forms.css">
+    <link rel="stylesheet" href="/css/dashboard.css">
 </head>
-<body>
+<body class="page-centered">
     <div class="container">
         <!-- Login Container -->
         <div id="authContainer" class="auth-container">
@@ -780,7 +155,16 @@
         const API_URL = window.location.origin;
         let token = localStorage.getItem('token');
         let userRole = localStorage.getItem('userRole');
-        let userData = JSON.parse(localStorage.getItem('userData') || '{}');
+        let userDataStr = localStorage.getItem('userData');
+        let userData = {};
+        try {
+            if (userDataStr && userDataStr !== 'undefined' && userDataStr !== 'null') {
+                userData = JSON.parse(userDataStr);
+            }
+        } catch (e) {
+            console.error('Error parsing userData:', e);
+            userData = {};
+        }
         let currentEditProductId = null;
         let allCustomers = [];
 
@@ -920,19 +304,11 @@
 
         async function loadCustomerProducts() {
             try {
-                console.log('Loading customer products...');
-                console.log('Token:', token ? 'exists' : 'missing');
-                console.log('User role:', userRole);
-                console.log('API URL:', `${API_URL}/api/products/my-products`);
-                
-                const response = await fetch(`${API_URL}/api/products/my-products`, {
+                const response = await fetch(`${API_URL}/api/customer/products`, {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
                 });
-
-                console.log('Response status:', response.status);
-                console.log('Response OK:', response.ok);
 
                 if (!response.ok) {
                     const errorText = await response.text();
@@ -941,7 +317,6 @@
                 }
 
                 const products = await response.json();
-                console.log('Products loaded:', products); // Debug log
 
                 const container = document.getElementById('customerProducts');
                 
@@ -1040,7 +415,7 @@
         async function updateAllDrafts() {
             try {
                 // Get all products
-                const response = await fetch(`${API_URL}/api/products/my-products`, {
+                const response = await fetch(`${API_URL}/api/customer/products`, {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
@@ -1102,7 +477,7 @@
         async function submitAllOrders() {
             try {
                 // Get all products
-                const response = await fetch(`${API_URL}/api/products/my-products`, {
+                const response = await fetch(`${API_URL}/api/customer/products`, {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
@@ -1180,8 +555,11 @@
                     }
                 });
 
-                const result = await response.json();
-                allCustomers = result.customers;
+                if (!response.ok) {
+                    throw new Error('Failed to fetch customers');
+                }
+
+                allCustomers = await response.json();
 
                 // Populate customer dropdown in edit modal
                 const select = document.getElementById('edit-product-customer');
